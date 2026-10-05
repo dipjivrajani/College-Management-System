@@ -1,0 +1,120 @@
+@page "/About"
+@model CollegeManagementSystem.Pages.AboutModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "About Us - Shree Sarswati Vishv Vidyalay Institute of Science";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/about.css" asp-append-version="true" />
+}
+
+<div class="about-page-wrapper">
+    <!-- Header Banner -->
+    <section class="about-header-banner">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Home</a> &gt; <span>About Us</span>
+            </nav>
+            <h1 class="about-page-title">About Our Institute</h1>
+            <p class="about-page-subtitle">
+                Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar — dedicated to undergraduate academic rigor, laboratory inquiry, and disciplined student development across seven modern science disciplines.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Sections -->
+    <div class="container about-main-body">
+        <!-- 1. Institute Overview -->
+        <section class="about-feature-row">
+            <div class="about-text-col">
+                <span class="about-feature-tag">Foundation &amp; Vision</span>
+                <h2 class="about-feature-heading">Institute Overview</h2>
+                <div class="about-accent-line"></div>
+                <p class="about-feature-desc">
+                    Established in Bhavnagar, Gujarat, Shree Sarswati Vishv Vidyalay Institute of Science provides high-caliber undergraduate science education under a disciplined and supportive academic environment.
+                </p>
+                <p class="about-feature-desc">
+                    Our campus is equipped with contemporary laboratories, subject-specific lecture halls, dedicated faculty guidance, and a comprehensive College Management System supporting students and instructors in daily academic workflows.
+                </p>
+            </div>
+            <div class="about-media-col">
+                <div class="about-img-box">
+                    <img src="~/images/home/about-campus.jpg" alt="Institute Campus Building, Bhavnagar" class="about-feature-img" />
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Science Education -->
+        <section class="about-feature-row reverse-row">
+            <div class="about-text-col">
+                <span class="about-feature-tag">Academic Curricula</span>
+                <h2 class="about-feature-heading">Science Education</h2>
+                <div class="about-accent-line"></div>
+                <p class="about-feature-desc">
+                    We offer undergraduate degree programs in seven distinct disciplines: Botany, Zoology, Chemistry, Physics, Microbiology, Forensic Science, and Computer Science.
+                </p>
+                <p class="about-feature-desc">
+                    Our curricula combine rigorous theoretical foundations with modern developments, preparing students for postgraduate research, academic careers, laboratory analysis, and industry applications.
+                </p>
+            </div>
+            <div class="about-media-col">
+                <div class="about-img-box">
+                    <img src="~/images/home/chemistry.jpg" alt="Science Education and Chemistry Laboratory" class="about-feature-img" />
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Practical Learning -->
+        <section class="about-feature-row">
+            <div class="about-text-col">
+                <span class="about-feature-tag">Experimental Rigor</span>
+                <h2 class="about-feature-heading">Practical Learning</h2>
+                <div class="about-accent-line"></div>
+                <p class="about-feature-desc">
+                    Scientific knowledge achieves clarity through experimentation. Our students perform hands-on chemical titrations, optical microscopy, microbial cultures, anatomical dissections, and computational simulations.
+                </p>
+                <p class="about-feature-desc">
+                    Laboratory sessions emphasize precision, safety protocols, systematic observation logging, and data verification guided directly by faculty instructors.
+                </p>
+            </div>
+            <div class="about-media-col">
+                <div class="about-img-box">
+                    <img src="~/images/home/laboratory.jpg" alt="Laboratory Learning and Instrumentation" class="about-feature-img" />
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Student Development -->
+        <section class="about-feature-row reverse-row">
+            <div class="about-text-col">
+                <span class="about-feature-tag">Holistic Mentorship</span>
+                <h2 class="about-feature-heading">Student Development</h2>
+                <div class="about-accent-line"></div>
+                <p class="about-feature-desc">
+                    Education at Shree Sarswati Vishv Vidyalay goes beyond classrooms. We foster analytical reasoning, ethical scientific conduct, collaborative problem solving, and professional presentation capability.
+                </p>
+                <p class="about-feature-desc">
+                    Through seminars, science symposiums, workshops, and sports activities, our students build well-rounded character, leadership skills, and lifelong curiosity.
+                </p>
+            </div>
+            <div class="about-media-col">
+                <div class="about-img-box">
+                    <img src="~/images/home/students.jpg" alt="Student Development and Campus Seminars" class="about-feature-img" />
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Action CTA -->
+        <section class="about-bottom-cta">
+            <div class="about-cta-card">
+                <h3>Ready to Explore Academic Opportunities?</h3>
+                <p>Discover our seven undergraduate science programs or submit an inquiry to our administrative office.</p>
+                <div class="about-cta-btns">
+                    <a href="/Programs" class="btn btn-teal">Explore Science Programs</a>
+                    <a href="/Contact" class="btn btn-secondary">Contact Administration</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

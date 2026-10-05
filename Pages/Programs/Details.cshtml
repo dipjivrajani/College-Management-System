@@ -1,0 +1,171 @@
+@page "/Programs/Details"
+@model CollegeManagementSystem.Pages.Programs.DetailsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.Course != null ? $"{Model.Course.CourseName} - Course Details" : "Course Details";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/course-details.css" asp-append-version="true" />
+}
+
+<div class="course-details-wrapper">
+    @if (Model.Course == null)
+    {
+        <div class="container not-found-box">
+            <h2>Course Not Found</h2>
+            <p>The requested science discipline could not be located.</p>
+            <a href="/Programs" class="btn btn-primary">&larr; Return to All Programs</a>
+        </div>
+    }
+    else
+    {
+        <!-- Header Banner with Breadcrumb -->
+        <section class="course-header-banner">
+            <div class="container">
+                <nav class="course-breadcrumb">
+                    <a href="/">&larr; Back to Home</a>
+                    <span class="sep">/</span>
+                    <a href="/Programs">All Programs</a>
+                    <span class="sep">/</span>
+                    <span class="current">@Model.Course.CourseName</span>
+                </nav>
+                <div class="banner-title-row">
+                    <div>
+                        <span class="course-tag">@Model.Course.Category</span>
+                        <h1 class="course-main-title">@Model.Course.CourseName</h1>
+                    </div>
+                    <div class="header-register-box">
+                        <a href="/Registration?course=@Uri.EscapeDataString(Model.Course.CourseName)" class="btn btn-teal">
+                            Register for this Course &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Course Details Content -->
+        <section class="course-content-section">
+            <div class="container">
+                <div class="course-two-column-layout">
+                    <!-- LEFT COLUMN: Image & Quick Spec Box -->
+                    <div class="course-media-column">
+                        <div class="course-image-frame">
+                            <img src="@Model.Course.ImagePath" alt="@Model.Course.CourseName" class="course-featured-img" />
+                            <div class="course-code-badge">
+                                <span>CODE:</span> @Model.Course.CourseCode
+                            </div>
+                        </div>
+
+                        <div class="quick-facts-card">
+                            <h3 class="facts-title">Program Summary</h3>
+                            <ul class="facts-list">
+                                <li>
+                                    <strong>Degree:</strong>
+                                    <span>Bachelor of Science (B.Sc.)</span>
+                                </li>
+                                <li>
+                                    <strong>Discipline:</strong>
+                                    <span>@Model.Course.Category</span>
+                                </li>
+                                <li>
+                                    <strong>Duration:</strong>
+                                    <span>@Model.Course.Duration</span>
+                                </li>
+                                <li>
+                                    <strong>Eligibility:</strong>
+                                    <span>10+2 Science Stream</span>
+                                </li>
+                                <li>
+                                    <strong>Mode:</strong>
+                                    <span>Full-Time Undergraduate</span>
+                                </li>
+                            </ul>
+
+                            <div class="facts-cta">
+                                <a href="/Registration?course=@Uri.EscapeDataString(Model.Course.CourseName)" class="btn-register-block">
+                                    Apply / Register for @Model.Course.CourseCode &rarr;
+                                </a>
+                                <p class="facts-note">Pre-fills your course choice in registration.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Detailed Information Cards -->
+                    <div class="course-info-column">
+                        <!-- 1. Overview -->
+                        <div class="info-card">
+                            <h2 class="card-heading">Program Overview</h2>
+                            <p class="overview-lead-text">@Model.Course.Description</p>
+                            <p class="overview-sub-text">
+                                Offered under Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar, this three-year undergraduate program provides in-depth conceptual instruction alongside dedicated laboratory sessions to prepare science students for advanced studies and diverse professional careers.
+                            </p>
+                        </div>
+
+                        <!-- 2. Practical Knowledge & Laboratory Training -->
+                        <div class="info-card">
+                            <h2 class="card-heading">Practical Knowledge &amp; Laboratory Work</h2>
+                            <p class="card-sub-text">
+                                Practical laboratory education forms the backbone of science studies at our institute. Students participate in scheduled laboratory exercises:
+                            </p>
+                            <div class="practical-callout">
+                                <span class="practical-icon">🔬</span>
+                                <p>@Model.Course.PracticalKnowledge</p>
+                            </div>
+                        </div>
+
+                        <!-- 3. Key Details Grid (Duration, Fees, Faculty, Certification) -->
+                        <div class="info-grid-row">
+                            <div class="grid-info-card">
+                                <div class="grid-icon">⏱️</div>
+                                <h4>Duration / Years</h4>
+                                <p>@Model.Course.Duration</p>
+                            </div>
+
+                            <div class="grid-info-card">
+                                <div class="grid-icon">💳</div>
+                                <h4>Course Fees</h4>
+                                <p class="configured-placeholder">@Model.Course.Fees</p>
+                            </div>
+
+                            <div class="grid-info-card">
+                                <div class="grid-icon">👨‍🏫</div>
+                                <h4>Faculty &amp; Instruction</h4>
+                                <p class="configured-placeholder">@Model.Course.Faculty</p>
+                            </div>
+
+                            <div class="grid-info-card">
+                                <div class="grid-icon">📜</div>
+                                <h4>Certification</h4>
+                                <p class="configured-placeholder">@Model.Course.Certification</p>
+                            </div>
+                        </div>
+
+                        <!-- 4. Eligibility Criteria -->
+                        <div class="info-card">
+                            <h2 class="card-heading">Eligibility Requirements</h2>
+                            <div class="eligibility-box">
+                                <span class="check-mark">✓</span>
+                                <div>
+                                    <strong>Academic Qualification:</strong>
+                                    <p>@Model.Course.Eligibility</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Registration CTA Bar -->
+                        <div class="bottom-reg-banner">
+                            <div>
+                                <h3>Interested in Enrolling?</h3>
+                                <p>Submit your student registration application online.</p>
+                            </div>
+                            <a href="/Registration?course=@Uri.EscapeDataString(Model.Course.CourseName)" class="btn btn-teal">
+                                Register for @Model.Course.CourseName &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+</div>

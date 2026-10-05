@@ -1,0 +1,654 @@
+/* ========================================================
+   College Management System - Shared Stylesheet (site.css)
+   Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar
+   ======================================================== */
+
+:root {
+    --primary-navy: #102a43;
+    --primary-navy-dark: #0a1b2b;
+    --primary-blue: #3182ce;
+    --primary-blue-hover: #2b6cb0;
+    --accent-gold: #f2a93b;
+    --bg-page: #f7f9fc;
+    --bg-white: #ffffff;
+    --text-main: #243b53;
+    --text-muted: #627d98;
+    --text-light: #829ab1;
+    --border-color: #e3eaf2;
+    --card-shadow: 0 4px 16px rgba(16, 42, 67, 0.06);
+    --card-shadow-hover: 0 10px 24px rgba(16, 42, 67, 0.12);
+    --container-width: 1200px;
+    --nav-height: 72px;
+}
+
+/* Strict Reset & Width Safety (Prevents any horizontal overflow) */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+    width: 100%;
+    max-width: 100%;
+}
+
+body {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: var(--text-main);
+    background-color: var(--bg-page);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+.main-content {
+    flex: 1 0 auto;
+    width: 100%;
+}
+
+/* Offset for fixed/sticky navbar so anchors are not clipped */
+section[id] {
+    scroll-margin-top: 80px;
+}
+
+/* Centered Desktop Content Container (max 1200px) */
+.container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Common Section Header */
+.section-header-block {
+    text-align: center;
+    margin-bottom: 2.8rem;
+}
+
+.section-badge-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--primary-blue);
+    background-color: #ebf8ff;
+    padding: 0.3rem 0.85rem;
+    border-radius: 20px;
+    margin-bottom: 0.6rem;
+    border: 1px solid #bee3f8;
+}
+
+.section-main-heading {
+    font-size: 2.1rem;
+    color: var(--primary-navy);
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    margin-bottom: 0.5rem;
+}
+
+.section-accent-line {
+    width: 52px;
+    height: 3px;
+    background-color: var(--accent-gold);
+    margin: 0.5rem auto 1rem auto;
+    border-radius: 2px;
+}
+
+.section-lead-text {
+    font-size: 1.02rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ========================================================
+   STICKY FULL-WIDTH NAVBAR
+   ======================================================== */
+.navbar {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--primary-navy);
+    box-shadow: 0 2px 10px rgba(16, 42, 67, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.navbar-inner {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0.75rem 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Left: Institute Emblem and Two-Line Name */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.brand-logo-icon {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand-text-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1.25;
+    color: #ffffff;
+}
+
+.brand-subname {
+    font-size: 0.82rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+
+/* Right: Navigation Items */
+.nav-menu {
+    display: flex;
+    align-items: center;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.nav-link {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 0.94rem;
+    font-weight: 500;
+    padding: 0.45rem 0.75rem;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.nav-link.active {
+    color: #ffffff;
+    font-weight: 600;
+    background-color: rgba(49, 130, 206, 0.35);
+    border-bottom: 2px solid var(--accent-gold);
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.dropdown-caret {
+    font-size: 0.65rem;
+    transition: transform 0.2s ease;
+}
+
+.dropdown:hover .dropdown-caret {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 230px;
+    background-color: var(--primary-navy-dark);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    list-style: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    z-index: 1010;
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown.dropdown-open .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.6rem 1.1rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    color: #ffffff;
+    background-color: rgba(49, 130, 206, 0.3);
+    padding-left: 1.35rem;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.12);
+    margin: 0.4rem 0;
+}
+
+.view-all-link {
+    color: var(--accent-gold) !important;
+    font-weight: 600;
+}
+
+.view-all-link:hover {
+    background-color: rgba(242, 169, 59, 0.15) !important;
+}
+
+/* Login Button in Navbar */
+.nav-btn-login {
+    background-color: var(--primary-blue);
+    color: #ffffff !important;
+    padding: 0.45rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    border-bottom: none !important;
+    transition: all 0.2s ease;
+}
+
+.nav-btn-login:hover {
+    background-color: var(--primary-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Nav Mobile Toggle */
+.nav-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 6px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+/* ========================================================
+   COMMON BUTTONS
+   ======================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.4rem;
+    font-size: 0.94rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary,
+.btn-teal,
+.btn-blue {
+    background-color: var(--primary-blue);
+    color: #ffffff;
+    border: 1px solid var(--primary-blue);
+    box-shadow: 0 2px 8px rgba(49, 130, 206, 0.25);
+}
+
+.btn-primary:hover,
+.btn-teal:hover,
+.btn-blue:hover {
+    background-color: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.35);
+}
+
+.btn-secondary,
+.btn-outline {
+    background-color: #ffffff;
+    color: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
+}
+
+.btn-secondary:hover,
+.btn-outline:hover {
+    background-color: #ebf8ff;
+    color: var(--primary-blue-hover);
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.84rem;
+}
+
+/* ========================================================
+   COMPACT FULL-WIDTH FOOTER
+   ======================================================== */
+.footer {
+    width: 100%;
+    background-color: var(--primary-navy-dark);
+    color: #cbd5e1;
+    padding: 3.5rem 0 1.5rem 0;
+    margin-top: auto;
+    border-top: 3px solid var(--primary-blue);
+}
+
+.footer-inner {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1.2fr 1.2fr;
+    gap: 2.2rem;
+    margin-bottom: 2.5rem;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.footer-emblem {
+    font-size: 1.8rem;
+}
+
+.footer-title {
+    font-size: 1.15rem;
+    color: #ffffff;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.footer-subtitle {
+    font-size: 0.88rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.footer-city {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+}
+
+.footer-about-text {
+    font-size: 0.86rem;
+    color: #94a3b8;
+    line-height: 1.6;
+}
+
+.footer-heading {
+    font-size: 1rem;
+    color: #ffffff;
+    margin-bottom: 1.1rem;
+    position: relative;
+    padding-bottom: 0.4rem;
+}
+
+.footer-heading::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 28px;
+    height: 2px;
+    background-color: var(--accent-gold);
+}
+
+.footer-links,
+.footer-contact-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+    padding-left: 4px;
+}
+
+.footer-contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: #94a3b8;
+}
+
+.footer-contact-list a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-contact-list a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.footer-whatsapp {
+    margin-top: 0.6rem;
+}
+
+.footer-wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: #25d366;
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.footer-wa-btn:hover {
+    background-color: #20ba5a;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 1.4rem;
+    text-align: center;
+    font-size: 0.84rem;
+    color: #64748b;
+}
+
+/* Compact Footer on Login */
+.footer.footer-login-compact {
+    padding: 12px 0 !important;
+    margin-top: 0 !important;
+    border-top: 2px solid var(--primary-blue);
+}
+
+.footer-login-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    width: 100%;
+}
+
+.footer-login-row p {
+    margin: 0;
+}
+
+.footer-login-links a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin: 0 4px;
+    transition: color 0.2s ease;
+}
+
+.footer-login-links a:hover {
+    color: var(--accent-gold);
+    text-decoration: underline;
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN (NAVBAR & FOOTER)
+   ======================================================== */
+@media (max-width: 992px) {
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-menu {
+        display: none;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--primary-navy-dark);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem 0;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-menu.open {
+        display: block;
+    }
+
+    .nav-list {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        padding: 0 24px;
+    }
+
+    .nav-item {
+        width: 100%;
+    }
+
+    .nav-link {
+        width: 100%;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        background-color: rgba(0, 0, 0, 0.2);
+        box-shadow: none;
+        border: none;
+        padding-left: 1rem;
+        display: none;
+    }
+
+    .dropdown.dropdown-open .dropdown-menu {
+        display: block;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .brand-name {
+        font-size: 0.95rem;
+    }
+
+    .brand-subname {
+        font-size: 0.72rem;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.8rem;
+    }
+}

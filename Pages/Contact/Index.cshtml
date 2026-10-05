@@ -1,0 +1,199 @@
+@page "/Contact"
+@model CollegeManagementSystem.Pages.Contact.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Contact & Inquiries - Shree Sarswati Vishv Vidyalay Institute of Science";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/contact.css" asp-append-version="true" />
+}
+
+<div class="contact-page-wrapper">
+    <!-- Compact Header Banner -->
+    <section class="contact-header-banner">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Home</a> &gt; <span>Contact &amp; Inquiries</span>
+            </nav>
+            <span class="contact-page-tag">CONTACT / INQUIRY</span>
+            <h1 class="contact-page-title">Contact Our Institute</h1>
+            <p class="contact-page-subtitle">
+                For admission-related questions, academic program inquiries, or portal assistance, send us an inquiry.
+            </p>
+        </div>
+    </section>
+
+    <div class="container contact-main-body">
+        <div class="contact-layout-grid">
+            <!-- LEFT COLUMN: Contact Information Card -->
+            <div class="contact-details-side">
+                <div class="details-card-box">
+                    <h2 class="details-card-title">Institute Contact Information</h2>
+
+                    <!-- Institute Name & Location -->
+                    <div class="channel-item">
+                        <div class="channel-icon">🏛️</div>
+                        <div class="channel-text">
+                            <label>Institute Name</label>
+                            <p class="channel-address">
+                                <strong>Shree Sarswati Vishv Vidyalay</strong><br />
+                                Institute of Science<br />
+                                Bhavnagar, Gujarat
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="channel-item">
+                        <div class="channel-icon">📧</div>
+                        <div class="channel-text">
+                            <label>Official Email</label>
+                            <a href="mailto:dipjivrajani@gmal.com" class="channel-link">dipjivrajani@gmal.com</a>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="channel-item">
+                        <div class="channel-icon">📞</div>
+                        <div class="channel-text">
+                            <label>Administrative Phone</label>
+                            <a href="tel:9427361323" class="channel-link">9427361323</a>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="channel-item">
+                        <div class="channel-icon">💬</div>
+                        <div class="channel-text">
+                            <label>WhatsApp Support</label>
+                            <a href="https://wa.me/919427361323" target="_blank" rel="noopener noreferrer" class="channel-link channel-wa-link">
+                                9427361323 <span>(Click to chat)</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="channel-item">
+                        <div class="channel-icon">📍</div>
+                        <div class="channel-text">
+                            <label>Address</label>
+                            <p class="channel-address">Bhavnagar, Gujarat, India</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-admin-badge">
+                        <span class="badge-icon">🔐</span>
+                        <p>Inquiries are recorded directly in the College Management System Admin Inbox.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Contact / Inquiry Form Card -->
+            <div class="contact-form-side">
+                @if (Model.IsSubmittedSuccess)
+                {
+                    <div class="inquiry-success-panel">
+                        <div class="inq-success-icon">✅</div>
+                        <h2 class="inq-success-title">Inquiry Submitted Successfully!</h2>
+                        <p class="inq-success-desc">
+                            Your inquiry has been sent to the Admin desk.
+                        </p>
+
+                        <div class="inq-ref-box">
+                            <span class="ref-label">INQUIRY REFERENCE NUMBER</span>
+                            <strong class="ref-number">#INQ-@Model.GeneratedInquiryId.ToString("D5")</strong>
+                            <span class="ref-sub">Logged on @DateTime.Now.ToString("dd MMM yyyy, hh:mm tt")</span>
+                        </div>
+
+                        <div class="inq-summary-box">
+                            <div class="inq-row"><strong>Name:</strong> <span>@Model.InquiryForm.Name</span></div>
+                            <div class="inq-row"><strong>Category:</strong> <span>@Model.InquiryForm.InquiryType</span></div>
+                            <div class="inq-row"><strong>Subject:</strong> <span>@Model.InquiryForm.Subject</span></div>
+                            <div class="inq-row"><strong>Status:</strong> <span class="badge-status-new">NEW (In Admin Inbox)</span></div>
+                        </div>
+
+                        <div class="inq-action-buttons">
+                            <a href="/Contact" class="btn btn-secondary">Submit Another Inquiry</a>
+                            <a href="/" class="btn btn-primary">Return to Home</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-container-card">
+                        <h2 class="form-heading">Send an Inquiry</h2>
+                        <p class="form-subheading">Fill in the fields below. Required fields are marked with <span class="req-star">*</span>.</p>
+
+                        <form method="post" class="inquiry-form" novalidate>
+                            <!-- Row 1: Full Name | Mobile / WhatsApp -->
+                            <div class="form-row-two">
+                                <div class="form-field">
+                                    <label asp-for="InquiryForm.Name" class="form-label">Full Name <span class="req-star">*</span></label>
+                                    <input asp-for="InquiryForm.Name" class="form-input" placeholder="Enter your full name" required />
+                                    <span asp-validation-for="InquiryForm.Name" class="field-error"></span>
+                                </div>
+
+                                <div class="form-field">
+                                    <label asp-for="InquiryForm.Mobile" class="form-label">Mobile / WhatsApp <span class="req-star">*</span></label>
+                                    <input asp-for="InquiryForm.Mobile" class="form-input" placeholder="10-digit mobile number" maxlength="10" required />
+                                    <span asp-validation-for="InquiryForm.Mobile" class="field-error"></span>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Email | Subject -->
+                            <div class="form-row-two">
+                                <div class="form-field">
+                                    <label asp-for="InquiryForm.Email" class="form-label">Email <span class="req-star">*</span></label>
+                                    <input asp-for="InquiryForm.Email" type="email" class="form-input" placeholder="name@example.com" required />
+                                    <span asp-validation-for="InquiryForm.Email" class="field-error"></span>
+                                </div>
+
+                                <div class="form-field">
+                                    <label asp-for="InquiryForm.Subject" class="form-label">Subject <span class="req-star">*</span></label>
+                                    <input asp-for="InquiryForm.Subject" class="form-input" placeholder="Subject of inquiry" required />
+                                    <span asp-validation-for="InquiryForm.Subject" class="field-error"></span>
+                                </div>
+                            </div>
+
+                            <!-- Row 3: Inquiry Type | Student/Teacher ID (Optional) -->
+                            <div class="form-row-two">
+                                <div class="form-field">
+                                    <label asp-for="InquiryForm.InquiryType" class="form-label">Inquiry Type <span class="req-star">*</span></label>
+                                    <select asp-for="InquiryForm.InquiryType" class="form-input form-select" required>
+                                        <option value="Student">Student</option>
+                                        <option value="Teacher">Teacher</option>
+                                        <option value="Parent">Parent</option>
+                                        <option value="General Inquiry" selected>General Inquiry</option>
+                                    </select>
+                                    <span asp-validation-for="InquiryForm.InquiryType" class="field-error"></span>
+                                </div>
+
+                                <div class="form-field">
+                                    <label asp-for="InquiryForm.StudentId" class="form-label">Student / Teacher ID <span class="opt-text">(Optional)</span></label>
+                                    <input asp-for="InquiryForm.StudentId" class="form-input" placeholder="Enter ID if applicable" />
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Current System Date -->
+                            <div class="form-field">
+                                <label class="form-label">Current System Date</label>
+                                <input type="text" class="form-input form-input-readonly" value="@DateTime.Today.ToString("dd MMMM yyyy")" readonly tabindex="-1" />
+                            </div>
+
+                            <!-- Row 5: Description -->
+                            <div class="form-field">
+                                <label asp-for="InquiryForm.Description" class="form-label">Description <span class="req-star">*</span></label>
+                                <textarea asp-for="InquiryForm.Description" class="form-input form-textarea" rows="3" placeholder="Enter details of your inquiry or question..." required></textarea>
+                                <span asp-validation-for="InquiryForm.Description" class="field-error"></span>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn-submit-inquiry">Submit Inquiry</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

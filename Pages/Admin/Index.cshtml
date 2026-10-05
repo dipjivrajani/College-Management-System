@@ -1,0 +1,173 @@
+@page "/Admin"
+@model CollegeManagementSystem.Pages.Admin.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-wrapper">
+    <!-- Top Admin Header -->
+    <section class="admin-top-bar">
+        <div class="container admin-nav-flex">
+            <div class="admin-brand-info">
+                <span class="admin-badge">ADMIN PORTAL</span>
+                <h1 class="admin-title">Institutional Management Dashboard</h1>
+            </div>
+            <div class="admin-quick-links">
+                <a href="/Admin/Registrations" class="admin-nav-item">Registrations (@Model.NewRegistrationsCount New)</a>
+                <a href="/Admin/Inquiries" class="admin-nav-item">Inquiries (@Model.NewInquiriesCount New)</a>
+                <a href="/Admin/Courses" class="admin-nav-item">Courses</a>
+                <a href="/login" class="admin-nav-item admin-logout">Logout</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container admin-main-body">
+        <!-- 1. Stats Counter Cards -->
+        <div class="admin-stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon-wrap bg-blue">📝</div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Registrations</span>
+                    <strong class="stat-number">@Model.TotalRegistrations</strong>
+                    <span class="stat-sub">@Model.NewRegistrationsCount awaiting review</span>
+                </div>
+                <a href="/Admin/Registrations" class="stat-link">View All &rarr;</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrap bg-amber">📬</div>
+                <div class="stat-content">
+                    <span class="stat-label">Inquiries &amp; Messages</span>
+                    <strong class="stat-number">@Model.TotalInquiries</strong>
+                    <span class="stat-sub">@Model.NewInquiriesCount unread / new</span>
+                </div>
+                <a href="/Admin/Inquiries" class="stat-link">View Inbox &rarr;</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrap bg-teal">🔬</div>
+                <div class="stat-content">
+                    <span class="stat-label">Active Science Programs</span>
+                    <strong class="stat-number">@Model.TotalCourses</strong>
+                    <span class="stat-sub">Undergraduate B.Sc. disciplines</span>
+                </div>
+                <a href="/Admin/Courses" class="stat-link">Manage &rarr;</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrap bg-purple">🏛️</div>
+                <div class="stat-content">
+                    <span class="stat-label">Institute Identity</span>
+                    <strong class="stat-number" style="font-size: 1.1rem; line-height: 1.3;">Shree Sarswati Vishv Vidyalay</strong>
+                    <span class="stat-sub">Institute of Science, Bhavnagar</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Dual Recent Tables -->
+        <div class="admin-two-tables-grid">
+            <!-- Recent Registrations -->
+            <div class="admin-card-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Recent Course Registrations</h2>
+                        <p class="panel-desc">Students registered via the public college website.</p>
+                    </div>
+                    <a href="/Admin/Registrations" class="btn btn-sm btn-secondary">View All</a>
+                </div>
+
+                @if (!Model.RecentRegistrations.Any())
+                {
+                    <div class="empty-state-card">
+                        <p>No student registrations submitted yet.</p>
+                        <a href="/Registration" class="btn btn-sm btn-teal">Test Public Registration Form &rarr;</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Reg ID</th>
+                                    <th>Applicant Name</th>
+                                    <th>Course</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var reg in Model.RecentRegistrations)
+                                {
+                                    <tr>
+                                        <td><strong>@reg.RegistrationId</strong></td>
+                                        <td>@reg.FullName</td>
+                                        <td>@reg.SelectedCourse</td>
+                                        <td>@reg.RegistrationDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <span class="status-pill status-@reg.Status.ToLower().Replace(" ", "-")">@reg.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <!-- Recent Inquiries -->
+            <div class="admin-card-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Recent Inquiries &amp; Messages</h2>
+                        <p class="panel-desc">Messages submitted to Admin from the Contact page.</p>
+                    </div>
+                    <a href="/Admin/Inquiries" class="btn btn-sm btn-secondary">View All</a>
+                </div>
+
+                @if (!Model.RecentInquiries.Any())
+                {
+                    <div class="empty-state-card">
+                        <p>No inquiries or messages received yet.</p>
+                        <a href="/Contact" class="btn btn-sm btn-teal">Test Public Inquiry Form &rarr;</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Inquiry ID</th>
+                                    <th>Sender</th>
+                                    <th>Type</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var inq in Model.RecentInquiries)
+                                {
+                                    <tr>
+                                        <td><strong>#INQ-@inq.InquiryId.ToString("D4")</strong></td>
+                                        <td>@inq.Name</td>
+                                        <td><span class="type-badge">@inq.InquiryType</span></td>
+                                        <td>@inq.Subject</td>
+                                        <td>
+                                            <span class="status-pill status-@inq.Status.ToLower().Replace(" ", "-")">@inq.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

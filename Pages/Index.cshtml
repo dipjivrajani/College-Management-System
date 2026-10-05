@@ -1,0 +1,393 @@
+@page "/"
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Home - Shree Sarswati Vishv Vidyalay Institute of Science";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<!-- ========================================================
+     1. HERO SECTION (Fits one desktop viewport)
+     ======================================================== -->
+<section id="home" class="hero-section">
+    <div class="container hero-grid">
+        <div class="hero-left">
+            <span class="hero-tag-badge">WELCOME TO OUR INSTITUTE</span>
+            <h1 class="hero-main-title">
+                Shree Sarswati Vishv Vidyalay<br />
+                <span class="hero-highlight">Institute of Science</span>
+            </h1>
+            <p class="hero-cms-sub">College Management System</p>
+            <p class="hero-lead-desc">
+                Supporting undergraduate science education, laboratory research inquiry, and academic management across biological, physical, and technological sciences in Bhavnagar.
+            </p>
+            <div class="hero-cta-buttons">
+                <a href="/Programs" class="btn-hero-primary">Explore Programs</a>
+                <a href="/login" class="btn-hero-secondary">Login</a>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="hero-image-frame">
+                <img src="~/images/home/hero-science.jpg" alt="Undergraduate Science Education at Shree Sarswati Vishv Vidyalay" class="hero-featured-img" />
+                <div class="hero-badge-overlay">
+                    <span class="overlay-icon">🔬</span>
+                    <span class="overlay-text">Undergraduate Science Excellence</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================
+     2. ACADEMIC HIGHLIGHTS (4 Equal Cards)
+     ======================================================== -->
+<section class="highlights-section">
+    <div class="container">
+        <div class="section-header-block">
+            <span class="section-badge-tag">Academic Pillars</span>
+            <h2 class="section-main-heading">Academic Highlights</h2>
+            <div class="section-accent-line"></div>
+            <p class="section-lead-text">Guiding undergraduate science scholars through rigorous academic inquiry, hands-on experiments, and structured mentoring.</p>
+        </div>
+        <div class="highlights-grid">
+            <div class="highlight-card">
+                <div class="highlight-icon-box">🔬</div>
+                <h3 class="highlight-title">Science Education</h3>
+                <p class="highlight-text">A structured curriculum across core and applied sciences instilling conceptual clarity, analytical methods, and scientific rigor.</p>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon-box">🧪</div>
+                <h3 class="highlight-title">Practical Learning</h3>
+                <p class="highlight-text">Laboratory-focused study connecting theoretical concepts directly with experimental investigation and methodical observations.</p>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon-box">👨‍🏫</div>
+                <h3 class="highlight-title">Academic Guidance</h3>
+                <p class="highlight-text">Dedicated science faculty providing classroom instruction, individual mentoring, and research orientation for students.</p>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon-box">🎯</div>
+                <h3 class="highlight-title">Student Development</h3>
+                <p class="highlight-text">Holistic nurturing of scientific thinking, career readiness, seminar presentations, and academic discipline.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================
+     3. EXPLORE OUR SCIENCE PROGRAMS (7 Courses Alphabetical)
+     ======================================================== -->
+<section id="programs" class="programs-section">
+    <div class="container">
+        <div class="section-header-block">
+            <span class="section-badge-tag">Undergraduate Courses</span>
+            <h2 class="section-main-heading">Explore Our Science Programs</h2>
+            <div class="section-accent-line"></div>
+            <p class="section-lead-text">Explore undergraduate programs across biological, physical, applied and technological sciences.</p>
+        </div>
+        <div class="programs-grid">
+            <!-- 1. B.Sc. Botany -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/botany.jpg" alt="B.Sc. Botany laboratory specimen study" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Botany</h3>
+                    <p class="program-desc">Study of plant morphology, taxonomy, physiology, cell biology, genetics, and environmental ecology with dedicated botanical laboratory observation.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Botany" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Botany" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. B.Sc. Chemistry -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/chemistry.jpg" alt="B.Sc. Chemistry quantitative titration laboratory" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Chemistry</h3>
+                    <p class="program-desc">Comprehensive training in organic, inorganic, and physical chemistry, quantitative titrations, chemical synthesis, and laboratory instrumentation.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Chemistry" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Chemistry" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. B.Sc. Computer Science -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/computer-science.jpg" alt="B.Sc. Computer Science software laboratory" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Computer Science</h3>
+                    <p class="program-desc">Foundations of computational science, algorithms, software engineering, database design, computer networks, and modern programming paradigms.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Computer%20Science" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Computer%20Science" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. B.Sc. Forensic Science -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/forensic.jpg" alt="B.Sc. Forensic Science investigative laboratory" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Forensic Science</h3>
+                    <p class="program-desc">Scientific crime investigation techniques, forensic toxicology, fingerprint identification, ballistic analysis, and judicial laboratory documentation.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Forensic%20Science" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Forensic%20Science" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. B.Sc. Microbiology -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/microbiology.jpg" alt="B.Sc. Microbiology microscopic culture laboratory" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Microbiology</h3>
+                    <p class="program-desc">Exploration of microscopic organisms, bacteriology, virology, immunology, microbial genetics, and industrial bioprocess laboratory techniques.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Microbiology" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Microbiology" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. B.Sc. Physics -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/physics.jpg" alt="B.Sc. Physics optical apparatus laboratory" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Physics</h3>
+                    <p class="program-desc">Study of classical mechanics, optics, electromagnetism, thermodynamics, quantum physics, and experimental apparatus calibration.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Physics" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Physics" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. B.Sc. Zoology -->
+            <div class="program-card">
+                <div class="program-card-image-box">
+                    <img src="~/images/home/zoology.jpg" alt="B.Sc. Zoology comparative anatomy laboratory" class="program-card-img" />
+                    <span class="program-degree-tag">3-Year B.Sc.</span>
+                </div>
+                <div class="program-card-body">
+                    <h3 class="program-title">B.Sc. Zoology</h3>
+                    <p class="program-desc">In-depth study of animal diversity, comparative anatomy, physiology, evolutionary biology, ecology, and microscopic tissue histology.</p>
+                    <div class="program-card-actions">
+                        <a href="/Programs/Details?course=Zoology" class="btn-card-details">View Details</a>
+                        <a href="/Registration?course=Zoology" class="btn-card-register">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================
+     4. SCIENCE DISCIPLINES (3 Category Cards)
+     ======================================================== -->
+<section class="disciplines-section">
+    <div class="container">
+        <div class="section-header-block">
+            <span class="section-badge-tag">Academic Fields</span>
+            <h2 class="section-main-heading">Science Disciplines</h2>
+            <div class="section-accent-line"></div>
+            <p class="section-lead-text">Our institute brings together multiple areas of science under one academic environment.</p>
+        </div>
+        <div class="disciplines-grid">
+            <!-- CARD 1: Life Sciences -->
+            <div class="discipline-card">
+                <div class="disc-header">
+                    <div class="disc-icon">🌿</div>
+                    <h3 class="disc-title">Life Sciences</h3>
+                </div>
+                <p class="disc-desc">
+                    Focuses on living organisms, plant biosystems, animal biology, and microscopic lifeforms through observational and experimental study.
+                </p>
+                <ul class="disc-list">
+                    <li>B.Sc. Botany</li>
+                    <li>B.Sc. Zoology</li>
+                    <li>B.Sc. Microbiology</li>
+                </ul>
+            </div>
+
+            <!-- CARD 2: Physical Sciences -->
+            <div class="discipline-card">
+                <div class="disc-header">
+                    <div class="disc-icon">⚛️</div>
+                    <h3 class="disc-title">Physical Sciences</h3>
+                </div>
+                <p class="disc-desc">
+                    Investigates the fundamental laws of matter, chemical transformations, thermodynamics, mechanics, and physical phenomena.
+                </p>
+                <ul class="disc-list">
+                    <li>B.Sc. Chemistry</li>
+                    <li>B.Sc. Physics</li>
+                </ul>
+            </div>
+
+            <!-- CARD 3: Applied & Technological Sciences -->
+            <div class="discipline-card">
+                <div class="disc-header">
+                    <div class="disc-icon">💻</div>
+                    <h3 class="disc-title">Applied &amp; Technological Sciences</h3>
+                </div>
+                <p class="disc-desc">
+                    Combines rigorous analytical sciences with computational methodology, investigative forensics, and digital systems.
+                </p>
+                <ul class="disc-list">
+                    <li>B.Sc. Forensic Science</li>
+                    <li>B.Sc. Computer Science</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================
+     5. PRACTICAL LEARNING (4 Compact Cards)
+     ======================================================== -->
+<section class="practical-section">
+    <div class="container">
+        <div class="section-header-block">
+            <span class="section-badge-tag">Hands-on Laboratory</span>
+            <h2 class="section-main-heading">Practical Learning</h2>
+            <div class="section-accent-line"></div>
+            <p class="section-lead-text">Connecting scientific concepts with practical learning and observation.</p>
+        </div>
+        <div class="practical-grid">
+            <div class="practical-card">
+                <div class="practical-image-wrap">
+                    <img src="~/images/home/laboratory.jpg" alt="Laboratory Learning" class="practical-thumb" />
+                </div>
+                <div class="practical-card-body">
+                    <h3 class="practical-card-title">Laboratory Learning</h3>
+                    <p class="practical-card-desc">Modern experimental facilities equipped with reagents, glassware, and precision apparatus for chemical titrations and biological analysis.</p>
+                </div>
+            </div>
+            <div class="practical-card">
+                <div class="practical-image-wrap">
+                    <img src="~/images/home/microbiology.jpg" alt="Scientific Observation" class="practical-thumb" />
+                </div>
+                <div class="practical-card-body">
+                    <h3 class="practical-card-title">Scientific Observation</h3>
+                    <p class="practical-card-desc">Optical microscopy, histological staining, and morphological dissection developing systematic documentation and observational discipline.</p>
+                </div>
+            </div>
+            <div class="practical-card">
+                <div class="practical-image-wrap">
+                    <img src="~/images/home/physics.jpg" alt="Practical Sessions" class="practical-thumb" />
+                </div>
+                <div class="practical-card-body">
+                    <h3 class="practical-card-title">Practical Sessions</h3>
+                    <p class="practical-card-desc">Structured physical science practicals covering optics, mechanics, electromagnetic circuits, and experimental error analysis.</p>
+                </div>
+            </div>
+            <div class="practical-card">
+                <div class="practical-image-wrap">
+                    <img src="~/images/home/computer-science.jpg" alt="Computer-Based Learning" class="practical-thumb" />
+                </div>
+                <div class="practical-card-body">
+                    <h3 class="practical-card-title">Computer-Based Learning</h3>
+                    <p class="practical-card-desc">High-speed computing labs for programming, statistical analysis, algorithmic simulations, and database management training.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================
+     6. STUDENT LIFE & ACTIVITIES (4 Compact Cards)
+     ======================================================== -->
+<section class="activities-section">
+    <div class="container">
+        <div class="section-header-block">
+            <span class="section-badge-tag">Campus Life</span>
+            <h2 class="section-main-heading">Student Life &amp; Activities</h2>
+            <div class="section-accent-line"></div>
+            <p class="section-lead-text">Fostering all-round development through academic events, science seminars, and student engagement.</p>
+        </div>
+        <div class="activities-grid">
+            <div class="activity-card">
+                <div class="activity-image-wrap">
+                    <img src="~/images/home/students.jpg" alt="Academic Activities" class="activity-thumb" />
+                </div>
+                <div class="activity-card-body">
+                    <h3 class="activity-title">Academic Activities</h3>
+                    <p class="activity-desc">Subject-specific symposiums, scientific paper reviews, and classroom seminars fostering confident presentation skills.</p>
+                </div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-image-wrap">
+                    <img src="~/images/home/chemistry.jpg" alt="Science Activities" class="activity-thumb" />
+                </div>
+                <div class="activity-card-body">
+                    <h3 class="activity-title">Science Activities</h3>
+                    <p class="activity-desc">Annual science exhibitions, experimental model presentations, and inter-departmental quiz competitions.</p>
+                </div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-image-wrap">
+                    <img src="~/images/home/computer-science.jpg" alt="Workshops" class="activity-thumb" />
+                </div>
+                <div class="activity-card-body">
+                    <h3 class="activity-title">Workshops</h3>
+                    <p class="activity-desc">Skill-building workshops on laboratory safety, research methodologies, scientific computing, and analytical software.</p>
+                </div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-image-wrap">
+                    <img src="~/images/home/science-campus.jpg" alt="Sports and Cultural Activities" class="activity-thumb" />
+                </div>
+                <div class="activity-card-body">
+                    <h3 class="activity-title">Sports &amp; Cultural Activities</h3>
+                    <p class="activity-desc">Campus sports tournaments, annual cultural gatherings, and community awareness drives supporting student well-being.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================
+     7. COLLEGE MANAGEMENT SYSTEM CTA (Compact Banner)
+     ======================================================== -->
+<section class="cms-cta-section">
+    <div class="container cms-cta-inner">
+        <div class="cms-cta-content">
+            <span class="cms-cta-badge">DIGITAL CAMPUS PORTAL</span>
+            <h2 class="cms-cta-heading">College Management System</h2>
+            <p class="cms-cta-desc">
+                A simple digital platform supporting students, teachers and administrators with academic and institutional information.
+            </p>
+            <div class="cms-pills-row">
+                <span class="cms-pill">Students</span>
+                <span class="cms-pill">Teachers</span>
+                <span class="cms-pill">Courses</span>
+                <span class="cms-pill">Academic Records</span>
+            </div>
+        </div>
+        <div class="cms-cta-actions">
+            <a href="/login" class="btn-cms-login">Login to Management System &rarr;</a>
+        </div>
+    </div>
+</section>

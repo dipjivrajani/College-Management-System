@@ -1,0 +1,370 @@
+/* ========================================================
+   Registration Page Stylesheet (registration.css)
+   Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar
+   ======================================================== */
+
+.registration-page-wrapper {
+    background-color: var(--bg-page);
+    min-height: 85vh;
+}
+
+.reg-header-banner {
+    background: linear-gradient(135deg, #06182c 0%, #0a2540 60%, #123e6b 100%);
+    color: #ffffff;
+    padding: 45px 0 50px 0;
+    border-bottom: 3px solid var(--accent-blue);
+}
+
+.reg-page-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.reg-page-subtitle {
+    font-size: 1.02rem;
+    color: #cbd5e1;
+    max-width: 680px;
+    line-height: 1.6;
+}
+
+.reg-container-body {
+    padding: 50px 24px 80px 24px;
+    max-width: 900px;
+}
+
+/* Success Card */
+.reg-success-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(10, 37, 64, 0.1);
+    border-top: 5px solid #10b981;
+}
+
+.success-icon-badge {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.success-title {
+    font-size: 1.85rem;
+    color: var(--primary);
+    font-weight: 800;
+    margin-bottom: 0.6rem;
+}
+
+.success-lead {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.success-id-highlight {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px dashed #16a34a;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.id-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #166534;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.id-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #14532d;
+    letter-spacing: 1px;
+    margin: 0.3rem 0;
+}
+
+.id-sub {
+    font-size: 0.84rem;
+    color: #15803d;
+}
+
+.reg-summary-table-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.summary-box-heading {
+    font-size: 1.1rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.4rem;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem 1.5rem;
+    font-size: 0.92rem;
+}
+
+.sum-row strong {
+    color: var(--text-muted);
+    margin-right: 0.4rem;
+}
+
+.badge-status-new {
+    background-color: #dbeafe;
+    color: #1e40af;
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+
+.success-notice-box {
+    background-color: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 2rem;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #92400e;
+    line-height: 1.6;
+}
+
+.success-action-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+}
+
+/* Form Card */
+.reg-form-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: var(--card-shadow);
+}
+
+.form-instructions-block {
+    background-color: #f0f7ff;
+    border-left: 4px solid var(--accent-blue);
+    padding: 1rem 1.2rem;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 2rem;
+}
+
+.inst-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.req-star {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.validation-summary-card {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    color: #991b1b;
+}
+
+.validation-summary-card h4 {
+    font-size: 0.96rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.validation-error-list ul {
+    margin-left: 1.2rem;
+    font-size: 0.88rem;
+}
+
+/* Fieldsets */
+.form-section-fieldset {
+    margin-bottom: 2.2rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 2rem;
+}
+
+.form-section-fieldset:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.highlight-fieldset {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.fieldset-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.3rem;
+}
+
+.step-num {
+    width: 28px;
+    height: 28px;
+    background-color: var(--primary);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.fieldset-header h3 {
+    font-size: 1.2rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin: 0;
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.form-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-col.full-width {
+    grid-column: span 2;
+}
+
+.form-col label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.4rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.92rem;
+    color: var(--text-main);
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.highlight-select {
+    font-weight: 600;
+    color: var(--primary);
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+}
+
+.field-error {
+    font-size: 0.8rem;
+    color: #dc2626;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
+/* Terms */
+.terms-fieldset {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.terms-checkbox-box {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.1rem;
+}
+
+.terms-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.88rem;
+    color: var(--text-main);
+    line-height: 1.55;
+    cursor: pointer;
+}
+
+.terms-checkbox {
+    margin-top: 0.25rem;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.form-submit-row {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.btn-submit-registration {
+    font-size: 1.05rem;
+    padding: 0.85rem 2.5rem;
+}
+
+.submit-note {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    margin-top: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .reg-form-card {
+        padding: 1.8rem 1.2rem;
+    }
+
+    .form-row-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-col.full-width {
+        grid-column: span 1;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .success-action-row {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,74 @@
+@page "/Admin/Courses"
+@model CollegeManagementSystem.Pages.Admin.Courses.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Science Programs - Admin";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-wrapper">
+    <!-- Top Admin Header -->
+    <section class="admin-top-bar">
+        <div class="container admin-nav-flex">
+            <div class="admin-brand-info">
+                <span class="admin-badge">ADMIN PORTAL</span>
+                <h1 class="admin-title">Science Academic Disciplines</h1>
+            </div>
+            <div class="admin-quick-links">
+                <a href="/Admin" class="admin-nav-item">&larr; Dashboard</a>
+                <a href="/Admin/Registrations" class="admin-nav-item">Registrations</a>
+                <a href="/Admin/Inquiries" class="admin-nav-item">Inquiries</a>
+                <a href="/login" class="admin-nav-item admin-logout">Logout</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container admin-main-body">
+        <div class="admin-card-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Institutional B.Sc. Programs (@Model.Courses.Count)</h2>
+                    <p class="panel-desc">All undergraduate programs sorted alphabetically (A to Z).</p>
+                </div>
+                <a href="/Programs" target="_blank" class="btn btn-sm btn-secondary">View Public Programs Page &rarr;</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Program Title</th>
+                            <th>Discipline Category</th>
+                            <th>Duration</th>
+                            <th>Fees Status</th>
+                            <th>Faculty Status</th>
+                            <th>Public Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.Courses)
+                        {
+                            <tr>
+                                <td><strong class="course-code-tag">@c.CourseCode</strong></td>
+                                <td><strong>@c.CourseName</strong></td>
+                                <td><span class="type-badge">@c.Category</span></td>
+                                <td>@c.Duration</td>
+                                <td><span class="placeholder-tag">@c.Fees</span></td>
+                                <td><span class="placeholder-tag">@c.Faculty</span></td>
+                                <td>
+                                    <a href="/Programs/Details?course=@c.CourseCode" target="_blank" class="view-details-link">
+                                        View Details &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

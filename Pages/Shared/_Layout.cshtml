@@ -1,0 +1,170 @@
+@* Shared layout for the College Management System *@
+@{
+    Layout = null; // Prevent recursive layout lookup
+    var currentPath = ViewContext.HttpContext.Request.Path.Value?.ToLower() ?? "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- FULL-WIDTH STICKY NAVBAR -->
+    <header class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="nav-brand">
+                <span class="brand-logo-icon">🔬</span>
+                <span class="brand-text-block">
+                    <span class="brand-name">Shree Sarswati Vishv Vidyalay</span>
+                    <span class="brand-subname">Institute of Science</span>
+                </span>
+            </a>
+
+            <!-- Mobile Toggle Button -->
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="nav-menu" id="navMenu">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link @(currentPath == "/" ? "active" : "")">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/About" class="nav-link @(currentPath.StartsWith("/about") ? "active" : "")">About Us</a>
+                    </li>
+
+                    <!-- Programs Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a href="/Programs" class="nav-link dropdown-toggle @(currentPath.StartsWith("/programs") ? "active" : "")" id="programsDropdown">
+                            Programs <span class="dropdown-caret">▼</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="programsDropdown">
+                            <li><a href="/Programs/Details?course=Botany" class="dropdown-item">B.Sc. Botany</a></li>
+                            <li><a href="/Programs/Details?course=Chemistry" class="dropdown-item">B.Sc. Chemistry</a></li>
+                            <li><a href="/Programs/Details?course=Computer%20Science" class="dropdown-item">B.Sc. Computer Science</a></li>
+                            <li><a href="/Programs/Details?course=Forensic%20Science" class="dropdown-item">B.Sc. Forensic Science</a></li>
+                            <li><a href="/Programs/Details?course=Microbiology" class="dropdown-item">B.Sc. Microbiology</a></li>
+                            <li><a href="/Programs/Details?course=Physics" class="dropdown-item">B.Sc. Physics</a></li>
+                            <li><a href="/Programs/Details?course=Zoology" class="dropdown-item">B.Sc. Zoology</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a href="/Programs" class="dropdown-item view-all-link">Explore All Programs &rarr;</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/Contact" class="nav-link @(currentPath.StartsWith("/contact") ? "active" : "")">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/login" class="nav-link nav-btn-login @(currentPath == "/login" ? "active" : "")">Login</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    @if (currentPath == "/login" || currentPath.StartsWith("/login/"))
+    {
+        <footer class="footer footer-login-compact">
+            <div class="footer-inner">
+                <div class="footer-login-row">
+                    <p>&copy; 2026 Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar. All Rights Reserved.</p>
+                    <div class="footer-login-links">
+                        <a href="/">Home</a> &bull;
+                        <a href="/About">About Us</a> &bull;
+                        <a href="/Contact">Contact Desk</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    }
+    else
+    {
+        <!-- FULL-WIDTH COMPACT FOOTER -->
+        <footer class="footer">
+            <div class="footer-inner">
+                <div class="footer-grid">
+                    <!-- Column 1: Institute -->
+                    <div class="footer-col">
+                        <div class="footer-brand">
+                            <span class="footer-emblem">🔬</span>
+                            <div>
+                                <h3 class="footer-title">Shree Sarswati Vishv Vidyalay</h3>
+                                <p class="footer-subtitle">Institute of Science</p>
+                            </div>
+                        </div>
+                        <p class="footer-city">Bhavnagar, Gujarat</p>
+                        <p class="footer-about-text">
+                            A recognized science institute dedicated to undergraduate academic rigor, laboratory inquiry, and disciplined student development across seven modern science disciplines.
+                        </p>
+                    </div>
+
+                    <!-- Column 2: Quick Links -->
+                    <div class="footer-col">
+                        <h4 class="footer-heading">Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/About">About Us</a></li>
+                            <li><a href="/Programs">Science Programs</a></li>
+                            <li><a href="/Contact">Contact Administration</a></li>
+                            <li><a href="/login">Portal Login</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 3: Science Programs (A to Z) -->
+                    <div class="footer-col">
+                        <h4 class="footer-heading">Science Programs</h4>
+                        <ul class="footer-links">
+                            <li><a href="/Programs/Details?course=Botany">B.Sc. Botany</a></li>
+                            <li><a href="/Programs/Details?course=Chemistry">B.Sc. Chemistry</a></li>
+                            <li><a href="/Programs/Details?course=Computer%20Science">B.Sc. Computer Science</a></li>
+                            <li><a href="/Programs/Details?course=Forensic%20Science">B.Sc. Forensic Science</a></li>
+                            <li><a href="/Programs/Details?course=Microbiology">B.Sc. Microbiology</a></li>
+                            <li><a href="/Programs/Details?course=Physics">B.Sc. Physics</a></li>
+                            <li><a href="/Programs/Details?course=Zoology">B.Sc. Zoology</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 4: Contact -->
+                    <div class="footer-col">
+                        <h4 class="footer-heading">Contact Information</h4>
+                        <ul class="footer-contact-list">
+                            <li>
+                                <span>📧</span>
+                                <a href="mailto:dipjivrajani@gmal.com">dipjivrajani@gmal.com</a>
+                            </li>
+                            <li>
+                                <span>📞</span>
+                                <a href="tel:9427361323">9427361323</a>
+                            </li>
+                            <li class="footer-whatsapp">
+                                <a href="https://wa.me/919427361323" target="_blank" rel="noopener noreferrer" class="footer-wa-btn">
+                                    <span>💬</span> WhatsApp: 9427361323
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Shree Sarswati Vishv Vidyalay Institute of Science. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+    }
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

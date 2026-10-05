@@ -1,0 +1,76 @@
+@page "/Programs"
+@model CollegeManagementSystem.Pages.Programs.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Explore Our Science Programs";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/programs.css" asp-append-version="true" />
+}
+
+<div class="programs-page-wrapper">
+    <!-- Breadcrumb & Header Banner -->
+    <section class="programs-hero-banner">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Home</a> &gt; <span>Programs</span>
+            </nav>
+            <h1 class="programs-page-title">Undergraduate Science Programs</h1>
+            <p class="programs-page-subtitle">
+                Explore our seven Bachelor of Science (B.Sc.) disciplines offered at Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Programs Grid Section -->
+    <section class="programs-list-section">
+        <div class="container">
+            <div class="programs-grid-container">
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="prog-card">
+                        <div class="prog-image-wrap">
+                            <img src="@course.ImagePath" alt="@course.CourseName" class="prog-card-image" />
+                            <span class="prog-category-badge">@course.Category</span>
+                        </div>
+                        <div class="prog-card-content">
+                            <h2 class="prog-name">@course.CourseName</h2>
+                            <p class="prog-summary">@course.Description</p>
+                            
+                            <div class="prog-quick-specs">
+                                <div class="spec-row">
+                                    <strong>Duration:</strong> <span>@course.Duration</span>
+                                </div>
+                                <div class="spec-row">
+                                    <strong>Eligibility:</strong> <span>10+2 Science Stream</span>
+                                </div>
+                            </div>
+
+                            <div class="prog-card-cta-group">
+                                <a href="/Programs/Details?course=@course.CourseCode" class="btn-prog-details">
+                                    View Details &rarr;
+                                </a>
+                                <a href="/Registration?course=@Uri.EscapeDataString(course.CourseName)" class="btn-prog-register">
+                                    Register
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Bottom Assistance Box -->
+            <div class="programs-help-banner">
+                <div class="help-text">
+                    <h3>Need Academic Guidance?</h3>
+                    <p>Contact our admission desk for counseling and inquiries regarding course curriculum.</p>
+                </div>
+                <div class="help-actions">
+                    <a href="/Contact" class="btn btn-teal">Contact Institute</a>
+                    <a href="https://wa.me/919427361323" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">WhatsApp: 9427361323</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

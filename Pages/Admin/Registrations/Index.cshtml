@@ -1,0 +1,126 @@
+@page "/Admin/Registrations"
+@model CollegeManagementSystem.Pages.Admin.Registrations.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Student Course Registrations - Admin";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-wrapper">
+    <!-- Top Admin Header -->
+    <section class="admin-top-bar">
+        <div class="container admin-nav-flex">
+            <div class="admin-brand-info">
+                <span class="admin-badge">ADMIN PORTAL</span>
+                <h1 class="admin-title">Student Course Registrations</h1>
+            </div>
+            <div class="admin-quick-links">
+                <a href="/Admin" class="admin-nav-item">&larr; Dashboard</a>
+                <a href="/Admin/Inquiries" class="admin-nav-item">Inquiries</a>
+                <a href="/Admin/Courses" class="admin-nav-item">Courses</a>
+                <a href="/login" class="admin-nav-item admin-logout">Logout</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container admin-main-body">
+        @if (!string.IsNullOrEmpty(Model.FeedbackMessage))
+        {
+            <div class="alert-success-banner">
+                ✓ @Model.FeedbackMessage
+            </div>
+        }
+
+        <div class="admin-card-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">All Submitted Registrations (@Model.Registrations.Count)</h2>
+                    <p class="panel-desc">Showing public applicant registrations in chronological order (newest first).</p>
+                </div>
+                <a href="/Registration" target="_blank" class="btn btn-sm btn-teal">+ Open Registration Form</a>
+            </div>
+
+            @if (!Model.Registrations.Any())
+            {
+                <div class="empty-state-card">
+                    <p>No student registrations submitted yet.</p>
+                    <a href="/Registration" class="btn btn-primary">Submit Test Registration &rarr;</a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Reg ID</th>
+                                <th>Applicant Details</th>
+                                <th>Course</th>
+                                <th>Academic Marks</th>
+                                <th>Contact Information</th>
+                                <th>Submission Date</th>
+                                <th>Current Status</th>
+                                <th>Update Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var reg in Model.Registrations)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong class="reg-id-text">@reg.RegistrationId</strong>
+                                    </td>
+                                    <td>
+                                        <div class="user-info-stack">
+                                            <strong class="user-name">@reg.FullName</strong>
+                                            <span class="user-sub">@reg.Gender • DOB: @reg.DateOfBirth.ToString("dd/MM/yyyy")</span>
+                                            <span class="user-sub">Father: @reg.FatherName (@reg.FatherOccupation)</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="course-chip">@reg.SelectedCourse</span>
+                                    </td>
+                                    <td>
+                                        <div class="marks-badge-stack">
+                                            <span>SSC: <strong>@reg.SSCMarks%</strong></span>
+                                            <span>HSC: <strong>@reg.HSCMarks%</strong></span>
+                                            <small class="school-name">@reg.SchoolName, @reg.SchoolCity</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="contact-links-stack">
+                                            <a href="tel:@reg.Mobile">📞 @reg.Mobile</a>
+                                            <a href="mailto:@reg.Email">📧 @reg.Email</a>
+                                            <small class="address-text">@reg.Address, @reg.City</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="date-text">@reg.RegistrationDate.ToString("dd MMM yyyy")</span>
+                                        <small class="time-text">@reg.RegistrationDate.ToString("hh:mm tt")</small>
+                                    </td>
+                                    <td>
+                                        <span class="status-pill status-@reg.Status.ToLower().Replace(" ", "-")">@reg.Status</span>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="UpdateStatus" class="inline-status-form">
+                                            <input type="hidden" name="RegistrationId" value="@reg.RegistrationId" />
+                                            <select name="NewStatus" class="status-select" onchange="this.form.submit()">
+                                                <option value="NEW" selected="@(reg.Status == "NEW")">NEW</option>
+                                                <option value="UNDER REVIEW" selected="@(reg.Status == "UNDER REVIEW")">UNDER REVIEW</option>
+                                                <option value="APPROVED" selected="@(reg.Status == "APPROVED")">APPROVED</option>
+                                                <option value="REJECTED" selected="@(reg.Status == "REJECTED")">REJECTED</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

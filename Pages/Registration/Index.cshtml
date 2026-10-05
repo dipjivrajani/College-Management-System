@@ -1,0 +1,264 @@
+@page "/Registration"
+@model CollegeManagementSystem.Pages.Registration.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Student Program Registration";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/registration.css" asp-append-version="true" />
+}
+
+<div class="registration-page-wrapper">
+    <!-- Header Banner -->
+    <section class="reg-header-banner">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a href="/">Home</a> &gt; <a href="/Programs">Programs</a> &gt; <span>Registration</span>
+            </nav>
+            <h1 class="reg-page-title">Undergraduate Course Registration</h1>
+            <p class="reg-page-subtitle">
+                Apply for admission into B.Sc. science programs at Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar.
+            </p>
+        </div>
+    </section>
+
+    <div class="container reg-container-body">
+        @if (Model.IsSubmittedSuccess)
+        {
+            <!-- SUCCESS CONFIRMATION PANEL -->
+            <div class="reg-success-card">
+                <div class="success-icon-badge">✅</div>
+                <h2 class="success-title">Registration Submitted Successfully!</h2>
+                <p class="success-lead">
+                    Thank you, <strong>@Model.RegForm.FullName</strong>. Your application has been received and saved into our college administration database.
+                </p>
+
+                <div class="success-id-highlight">
+                    <span class="id-label">OFFICIAL REGISTRATION ID</span>
+                    <strong class="id-value">@Model.GeneratedRegistrationId</strong>
+                    <span class="id-sub">Please save this registration ID for all future admissions correspondence.</span>
+                </div>
+
+                <div class="reg-summary-table-box">
+                    <h3 class="summary-box-heading">Application Summary</h3>
+                    <div class="summary-grid">
+                        <div class="sum-row"><strong>Applicant Name:</strong> <span>@Model.RegForm.FullName</span></div>
+                        <div class="sum-row"><strong>Selected Course:</strong> <span>@Model.RegForm.SelectedCourse</span></div>
+                        <div class="sum-row"><strong>Contact Mobile:</strong> <span>@Model.RegForm.Mobile</span></div>
+                        <div class="sum-row"><strong>Email Address:</strong> <span>@Model.RegForm.Email</span></div>
+                        <div class="sum-row"><strong>Submission Date:</strong> <span>@Model.RegForm.RegistrationDate.ToString("dd MMM yyyy, hh:mm tt")</span></div>
+                        <div class="sum-row"><strong>Status:</strong> <span class="badge-status-new">NEW (Under Review)</span></div>
+                    </div>
+                </div>
+
+                <div class="success-notice-box">
+                    <strong>ℹ️ Next Steps:</strong>
+                    <p>
+                        Public registration does not immediately activate a student account. The administration will review your submitted credentials. Approved students will receive their official <strong>Student ID</strong> and login credentials directly from the college administration.
+                    </p>
+                </div>
+
+                <div class="success-action-row">
+                    <a href="/" class="btn btn-primary">&larr; Return to Home</a>
+                    <a href="/Programs" class="btn btn-secondary">Explore Other Programs</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- REGISTRATION FORM -->
+            <div class="reg-form-card">
+                <div class="form-instructions-block">
+                    <p class="inst-text">
+                        Fields marked with an asterisk (<span class="req-star">*</span>) are mandatory. Please provide accurate academic records matching your official marksheets.
+                    </p>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="validation-summary-card">
+                        <h4>Please correct the following errors:</h4>
+                        <div asp-validation-summary="All" class="validation-error-list"></div>
+                    </div>
+                }
+
+                <form method="post" class="student-reg-form" novalidate>
+                    <!-- 1. PERSONAL INFORMATION -->
+                    <div class="form-section-fieldset">
+                        <div class="fieldset-header">
+                            <span class="step-num">1</span>
+                            <h3>Personal Information</h3>
+                        </div>
+                        <div class="form-row-grid">
+                            <div class="form-col full-width">
+                                <label asp-for="RegForm.FullName">Full Name <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.FullName" class="form-control" placeholder="Enter candidate's full legal name as per SSC marksheet" />
+                                <span asp-validation-for="RegForm.FullName" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.DateOfBirth">Date of Birth <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.DateOfBirth" type="date" class="form-control" />
+                                <span asp-validation-for="RegForm.DateOfBirth" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.Gender">Gender <span class="req-star">*</span></label>
+                                <select asp-for="RegForm.Gender" class="form-control">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="RegForm.Gender" class="field-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. CONTACT INFORMATION -->
+                    <div class="form-section-fieldset">
+                        <div class="fieldset-header">
+                            <span class="step-num">2</span>
+                            <h3>Contact Information</h3>
+                        </div>
+                        <div class="form-row-grid">
+                            <div class="form-col">
+                                <label asp-for="RegForm.Mobile">Mobile / WhatsApp Number (10 Digits) <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.Mobile" class="form-control" placeholder="e.g. 9876543210" maxlength="10" />
+                                <span asp-validation-for="RegForm.Mobile" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.Email">Email Address <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.Email" type="email" class="form-control" placeholder="e.g. student@gmail.com" />
+                                <span asp-validation-for="RegForm.Email" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col full-width">
+                                <label asp-for="RegForm.Address">Residential Address <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.Address" class="form-control" placeholder="House / Street address, Area" />
+                                <span asp-validation-for="RegForm.Address" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.City">City / Town <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.City" class="form-control" placeholder="e.g. Bhavnagar" />
+                                <span asp-validation-for="RegForm.City" class="field-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. ACADEMIC INFORMATION -->
+                    <div class="form-section-fieldset">
+                        <div class="fieldset-header">
+                            <span class="step-num">3</span>
+                            <h3>Academic Information</h3>
+                        </div>
+                        <div class="form-row-grid">
+                            <div class="form-col">
+                                <label asp-for="RegForm.SchoolName">Previous School / College Name <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.SchoolName" class="form-control" placeholder="School where 12th was completed" />
+                                <span asp-validation-for="RegForm.SchoolName" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.SchoolCity">School City <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.SchoolCity" class="form-control" placeholder="City of previous school" />
+                                <span asp-validation-for="RegForm.SchoolCity" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.SSCMarks">10th (SSC) Marks Percentage (%) <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.SSCMarks" type="number" step="0.01" min="35" max="100" class="form-control" placeholder="e.g. 78.50" />
+                                <span asp-validation-for="RegForm.SSCMarks" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.HSCMarks">12th (HSC Science) Percentage (%) <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.HSCMarks" type="number" step="0.01" min="35" max="100" class="form-control" placeholder="e.g. 82.40" />
+                                <span asp-validation-for="RegForm.HSCMarks" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col full-width">
+                                <label asp-for="RegForm.InterestedSubjects">Interested Subjects / Academic Focus</label>
+                                <input asp-for="RegForm.InterestedSubjects" class="form-control" placeholder="e.g. Organic Chemistry, Plant Biology, Coding, etc." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. COURSE INFORMATION -->
+                    <div class="form-section-fieldset highlight-fieldset">
+                        <div class="fieldset-header">
+                            <span class="step-num">4</span>
+                            <h3>Course Selection</h3>
+                        </div>
+                        <div class="form-row-grid">
+                            <div class="form-col">
+                                <label asp-for="RegForm.SelectedCourse">Selected Science Program <span class="req-star">*</span></label>
+                                <select asp-for="RegForm.SelectedCourse" class="form-control highlight-select">
+                                    <option value="">-- Select Science Discipline (A to Z) --</option>
+                                    @foreach (var courseName in Model.AvailableCourses)
+                                    {
+                                        <option value="@courseName">@courseName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="RegForm.SelectedCourse" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.Specialization">Preferred Specialization (Optional)</label>
+                                <input asp-for="RegForm.Specialization" class="form-control" placeholder="e.g. General Science, Research, Practical Track" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. PARENT / GUARDIAN INFORMATION -->
+                    <div class="form-section-fieldset">
+                        <div class="fieldset-header">
+                            <span class="step-num">5</span>
+                            <h3>Parent / Guardian Information</h3>
+                        </div>
+                        <div class="form-row-grid">
+                            <div class="form-col">
+                                <label asp-for="RegForm.FatherName">Father's / Guardian's Full Name <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.FatherName" class="form-control" placeholder="Enter father's full name" />
+                                <span asp-validation-for="RegForm.FatherName" class="field-error"></span>
+                            </div>
+
+                            <div class="form-col">
+                                <label asp-for="RegForm.FatherOccupation">Father's / Guardian's Occupation <span class="req-star">*</span></label>
+                                <input asp-for="RegForm.FatherOccupation" class="form-control" placeholder="e.g. Business, Teacher, Service, Agriculture" />
+                                <span asp-validation-for="RegForm.FatherOccupation" class="field-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. TERMS & AGREEMENT -->
+                    <div class="form-section-fieldset terms-fieldset">
+                        <div class="fieldset-header">
+                            <span class="step-num">6</span>
+                            <h3>Declaration &amp; Agreement</h3>
+                        </div>
+                        <div class="terms-checkbox-box">
+                            <label class="terms-label">
+                                <input asp-for="AgreeTerms" type="checkbox" class="terms-checkbox" />
+                                <span>
+                                    I hereby declare that all information furnished above is true and authentic to the best of my knowledge. I understand that registration does not guarantee admission and is subject to verification by Shree Sarswati Vishv Vidyalay Institute of Science administration. <span class="req-star">*</span>
+                                </span>
+                            </label>
+                            <span asp-validation-for="AgreeTerms" class="field-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-submit-row">
+                        <button type="submit" class="btn btn-teal btn-submit-registration">
+                            Submit Course Registration &rarr;
+                        </button>
+                        <p class="submit-note">Your application will be recorded securely in the institute management system.</p>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>

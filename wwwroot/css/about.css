@@ -1,0 +1,199 @@
+/* ========================================================
+   About Page Stylesheet (about.css)
+   Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar
+   ======================================================== */
+
+.about-page-wrapper {
+    width: 100%;
+    background-color: var(--bg-page);
+    padding-bottom: 60px;
+}
+
+/* Header Banner */
+.about-header-banner {
+    background: linear-gradient(135deg, var(--primary-navy-dark) 0%, var(--primary-navy) 100%);
+    color: #ffffff;
+    padding: 48px 0 52px 0;
+    margin-bottom: 40px;
+    border-bottom: 3px solid var(--primary-blue);
+    width: 100%;
+}
+
+.breadcrumb-nav {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-nav a {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.breadcrumb-nav a:hover {
+    text-decoration: underline;
+}
+
+.about-page-title {
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.3px;
+}
+
+.about-page-subtitle {
+    font-size: 1.05rem;
+    color: #cbd5e1;
+    max-width: 780px;
+    line-height: 1.6;
+}
+
+/* Main Body Rows */
+.about-main-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+}
+
+.about-feature-row {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 3rem;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 36px 40px;
+    box-shadow: var(--card-shadow);
+}
+
+.about-feature-row.reverse-row {
+    grid-template-columns: 0.8fr 1.2fr;
+}
+
+.about-feature-row.reverse-row .about-media-col {
+    order: 1;
+}
+
+.about-feature-row.reverse-row .about-text-col {
+    order: 2;
+}
+
+.about-feature-tag {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--primary-blue);
+    background-color: #ebf8ff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    margin-bottom: 0.7rem;
+    border: 1px solid #bee3f8;
+}
+
+.about-feature-heading {
+    font-size: 1.8rem;
+    color: var(--primary-navy);
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+}
+
+.about-accent-line {
+    width: 44px;
+    height: 3px;
+    background-color: var(--accent-gold);
+    margin-bottom: 1.2rem;
+    border-radius: 2px;
+}
+
+.about-feature-desc {
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.about-feature-desc:last-child {
+    margin-bottom: 0;
+}
+
+.about-img-box {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    background-color: #f1f5f9;
+}
+
+.about-feature-img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.about-feature-row:hover .about-feature-img {
+    transform: scale(1.03);
+}
+
+/* Bottom CTA Banner */
+.about-bottom-cta {
+    margin-top: 1rem;
+}
+
+.about-cta-card {
+    background: linear-gradient(135deg, #f0f7fb 0%, #ffffff 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 36px 30px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+}
+
+.about-cta-card h3 {
+    font-size: 1.5rem;
+    color: var(--primary-navy);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.about-cta-card p {
+    font-size: 0.96rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.about-cta-btns {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .about-feature-row,
+    .about-feature-row.reverse-row {
+        grid-template-columns: 1fr;
+        padding: 26px;
+        gap: 2rem;
+    }
+
+    .about-feature-row.reverse-row .about-media-col {
+        order: 2;
+    }
+
+    .about-feature-row.reverse-row .about-text-col {
+        order: 1;
+    }
+
+    .about-feature-img {
+        height: 230px;
+    }
+}

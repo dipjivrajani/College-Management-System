@@ -1,0 +1,445 @@
+/* ========================================================
+   Contact & Inquiries Page Stylesheet (contact.css)
+   Compact, Professional Two-Column Desktop Design
+   Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar
+   ======================================================== */
+
+.contact-page-wrapper {
+    width: 100%;
+    background-color: var(--bg-page, #f7f9fc);
+    padding-bottom: 40px;
+}
+
+/* Compact Header Banner */
+.contact-header-banner {
+    background: linear-gradient(135deg, var(--primary-navy-dark, #0a1b2b) 0%, var(--primary-navy, #102a43) 100%);
+    color: #ffffff;
+    padding: 22px 0 24px 0;
+    margin-bottom: 22px;
+    border-bottom: 3px solid var(--primary-blue, #3182ce);
+    width: 100%;
+}
+
+.breadcrumb-nav {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 0.35rem;
+}
+
+.breadcrumb-nav a {
+    color: var(--accent-gold, #f2a93b);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.breadcrumb-nav a:hover {
+    text-decoration: underline;
+}
+
+.contact-page-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--accent-gold, #f2a93b);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.contact-page-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.contact-page-subtitle {
+    font-size: 0.92rem;
+    color: #cbd5e1;
+    max-width: 720px;
+    line-height: 1.5;
+}
+
+/* Main Body Layout */
+.contact-main-body {
+    width: 100%;
+    max-width: var(--container-width, 1200px);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.contact-layout-grid {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Left Column: Contact Details Card */
+.contact-details-side {
+    width: 100%;
+}
+
+.details-card-box {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e3eaf2);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: var(--card-shadow, 0 4px 16px rgba(16, 42, 67, 0.06));
+}
+
+.details-card-title {
+    font-size: 1.15rem;
+    color: var(--primary-navy, #102a43);
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.channel-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.channel-item:last-of-type {
+    margin-bottom: 14px;
+}
+
+.channel-icon {
+    width: 36px;
+    height: 36px;
+    background-color: #ebf8ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    border: 1px solid #bee3f8;
+    flex-shrink: 0;
+}
+
+.channel-text {
+    flex: 1;
+}
+
+.channel-text label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #627d98;
+    margin-bottom: 2px;
+}
+
+.channel-link {
+    color: var(--primary-blue, #3182ce);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.channel-link:hover {
+    color: var(--primary-blue-hover, #2b6cb0);
+    text-decoration: underline;
+}
+
+.channel-wa-link span {
+    font-size: 0.78rem;
+    color: #059669;
+    font-weight: 500;
+}
+
+.channel-address {
+    font-size: 0.88rem;
+    color: var(--text-main, #243b53);
+    line-height: 1.45;
+    margin: 0;
+}
+
+.contact-admin-badge {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.badge-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.contact-admin-badge p {
+    font-size: 0.78rem;
+    color: #166534;
+    line-height: 1.4;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Right Column: Inquiry Form Card */
+.contact-form-side {
+    width: 100%;
+}
+
+.form-container-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e3eaf2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: var(--card-shadow, 0 4px 16px rgba(16, 42, 67, 0.06));
+}
+
+.form-heading {
+    font-size: 1.25rem;
+    color: var(--primary-navy, #102a43);
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.form-subheading {
+    font-size: 0.82rem;
+    color: var(--text-muted, #627d98);
+    margin-bottom: 14px;
+}
+
+.req-star {
+    color: #e53e3e;
+}
+
+.opt-text {
+    font-size: 0.76rem;
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.inquiry-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main, #243b53);
+    margin-bottom: 3px;
+}
+
+.form-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    color: var(--text-main, #243b53);
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-blue, #3182ce);
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+}
+
+.form-input::placeholder {
+    color: #94a3b8;
+    font-size: 0.84rem;
+}
+
+.form-select {
+    cursor: pointer;
+    background-color: #ffffff;
+}
+
+.form-input-readonly {
+    background-color: #f8fafc;
+    color: #475569;
+    border: 1px dashed #cbd5e1;
+    cursor: default;
+    font-weight: 500;
+}
+
+.form-textarea {
+    height: 95px;
+    padding: 8px 12px;
+    resize: vertical;
+    min-height: 85px;
+    font-family: inherit;
+    line-height: 1.45;
+}
+
+.field-error {
+    font-size: 0.78rem;
+    color: #dc2626;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.btn-submit-inquiry {
+    width: 100%;
+    height: 44px;
+    background-color: var(--primary-blue, #3182ce);
+    color: #ffffff;
+    border: 1px solid var(--primary-blue, #3182ce);
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(49, 130, 206, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-submit-inquiry:hover {
+    background-color: var(--primary-blue-hover, #2b6cb0);
+    border-color: var(--primary-blue-hover, #2b6cb0);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(49, 130, 206, 0.35);
+}
+
+/* Success Panel */
+.inquiry-success-panel {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e3eaf2);
+    border-radius: 12px;
+    padding: 24px 22px;
+    box-shadow: var(--card-shadow, 0 4px 16px rgba(16, 42, 67, 0.06));
+    text-align: center;
+    border-top: 4px solid #10b981;
+}
+
+.inq-success-icon {
+    font-size: 2.4rem;
+    margin-bottom: 6px;
+}
+
+.inq-success-title {
+    font-size: 1.35rem;
+    color: var(--primary-navy, #102a43);
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.inq-success-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted, #627d98);
+    margin-bottom: 16px;
+}
+
+.inq-ref-box {
+    background-color: #f0fdf4;
+    border: 1px dashed #16a34a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.ref-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #15803d;
+    letter-spacing: 0.8px;
+}
+
+.ref-number {
+    font-size: 1.25rem;
+    color: #166534;
+    font-family: monospace;
+    font-weight: 800;
+}
+
+.ref-sub {
+    font-size: 0.76rem;
+    color: #4b5563;
+}
+
+.inq-summary-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.inq-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.84rem;
+    color: var(--text-main, #243b53);
+}
+
+.badge-status-new {
+    background-color: #dbeafe;
+    color: #1e40af;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.inq-action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .contact-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .form-row-two {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .contact-page-title {
+        font-size: 1.5rem;
+    }
+
+    .details-card-box,
+    .form-container-card {
+        padding: 18px 16px;
+    }
+}

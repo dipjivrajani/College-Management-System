@@ -1,0 +1,131 @@
+@page "/Admin/Inquiries"
+@model CollegeManagementSystem.Pages.Admin.Inquiries.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Inquiries & Messages - Admin";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-wrapper">
+    <!-- Top Admin Header -->
+    <section class="admin-top-bar">
+        <div class="container admin-nav-flex">
+            <div class="admin-brand-info">
+                <span class="admin-badge">ADMIN PORTAL</span>
+                <h1 class="admin-title">Inquiries &amp; Messages Inbox</h1>
+            </div>
+            <div class="admin-quick-links">
+                <a href="/Admin" class="admin-nav-item">&larr; Dashboard</a>
+                <a href="/Admin/Registrations" class="admin-nav-item">Registrations</a>
+                <a href="/Admin/Courses" class="admin-nav-item">Courses</a>
+                <a href="/login" class="admin-nav-item admin-logout">Logout</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container admin-main-body">
+        @if (!string.IsNullOrEmpty(Model.FeedbackMessage))
+        {
+            <div class="alert-success-banner">
+                ✓ @Model.FeedbackMessage
+            </div>
+        }
+
+        <div class="admin-card-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Inbox Messages &amp; Queries (@Model.Inquiries.Count)</h2>
+                    <p class="panel-desc">All messages submitted through the public Contact page (ordered newest first).</p>
+                </div>
+                <a href="/Contact" target="_blank" class="btn btn-sm btn-teal">+ Test Contact Form</a>
+            </div>
+
+            @if (!Model.Inquiries.Any())
+            {
+                <div class="empty-state-card">
+                    <p>No inquiries or messages received yet.</p>
+                    <a href="/Contact" class="btn btn-primary">Send Test Inquiry &rarr;</a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Inquiry ID</th>
+                                <th>Sender Information</th>
+                                <th>Category</th>
+                                <th>ID Ref</th>
+                                <th>Subject &amp; Message</th>
+                                <th>Received Date</th>
+                                <th>Current Status</th>
+                                <th>Update Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inq in Model.Inquiries)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong class="reg-id-text">#INQ-@inq.InquiryId.ToString("D4")</strong>
+                                    </td>
+                                    <td>
+                                        <div class="user-info-stack">
+                                            <strong class="user-name">@inq.Name</strong>
+                                            <a href="tel:@inq.Mobile">📞 @inq.Mobile</a>
+                                            <a href="mailto:@inq.Email">📧 @inq.Email</a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge">@inq.InquiryType</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(inq.StudentId))
+                                        {
+                                            <span class="id-ref-chip">Student: @inq.StudentId</span>
+                                        }
+                                        else if (!string.IsNullOrEmpty(inq.TeacherId))
+                                        {
+                                            <span class="id-ref-chip">Faculty: @inq.TeacherId</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="message-content-box">
+                                            <strong class="msg-subject">@inq.Subject</strong>
+                                            <p class="msg-desc">@inq.Description</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="date-text">@inq.CreatedDate.ToString("dd MMM yyyy")</span>
+                                        <small class="time-text">@inq.CreatedDate.ToString("hh:mm tt")</small>
+                                    </td>
+                                    <td>
+                                        <span class="status-pill status-@inq.Status.ToLower().Replace(" ", "-")">@inq.Status</span>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="UpdateStatus" class="inline-status-form">
+                                            <input type="hidden" name="InquiryId" value="@inq.InquiryId" />
+                                            <select name="NewStatus" class="status-select" onchange="this.form.submit()">
+                                                <option value="NEW" selected="@(inq.Status == "NEW")">NEW</option>
+                                                <option value="IN REVIEW" selected="@(inq.Status == "IN REVIEW")">IN REVIEW</option>
+                                                <option value="RESOLVED" selected="@(inq.Status == "RESOLVED")">RESOLVED</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

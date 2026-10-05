@@ -1,0 +1,375 @@
+/* ========================================================
+   Course Details Page Stylesheet (course-details.css)
+   Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar
+   ======================================================== */
+
+.course-details-wrapper {
+    background-color: var(--bg-page);
+    min-height: 85vh;
+}
+
+.course-header-banner {
+    background: linear-gradient(135deg, #06182c 0%, #0a2540 60%, #123e6b 100%);
+    color: #ffffff;
+    padding: 45px 0 50px 0;
+    border-bottom: 3px solid var(--accent-blue);
+}
+
+.course-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: #94a3b8;
+    margin-bottom: 1.2rem;
+}
+
+.course-breadcrumb a {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.course-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.course-breadcrumb .sep {
+    color: #64748b;
+}
+
+.course-breadcrumb .current {
+    color: #e2e8f0;
+}
+
+.banner-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.course-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background-color: rgba(2, 132, 199, 0.25);
+    color: #7dd3fc;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(2, 132, 199, 0.4);
+}
+
+.course-main-title {
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.4px;
+}
+
+.course-content-section {
+    padding: 50px 0 80px 0;
+}
+
+.course-two-column-layout {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+}
+
+/* Left Column */
+.course-media-column {
+    flex: 1 1 38%;
+    position: sticky;
+    top: 90px;
+}
+
+.course-image-frame {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    border: 4px solid #ffffff;
+    background-color: #ffffff;
+    margin-bottom: 1.5rem;
+}
+
+.course-featured-img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    display: block;
+}
+
+.course-code-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(10, 37, 64, 0.88);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.35rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.course-code-badge span {
+    color: var(--accent-gold);
+    font-size: 0.72rem;
+}
+
+.quick-facts-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.6rem;
+    box-shadow: var(--card-shadow);
+}
+
+.facts-title {
+    font-size: 1.15rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.facts-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.facts-list li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.facts-list li strong {
+    color: var(--text-muted);
+}
+
+.facts-cta {
+    text-align: center;
+}
+
+.btn-register-block {
+    display: block;
+    width: 100%;
+    background-color: var(--primary);
+    color: #ffffff;
+    font-size: 0.94rem;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(10, 37, 64, 0.2);
+}
+
+.btn-register-block:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(10, 37, 64, 0.3);
+}
+
+.facts-note {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+/* Right Column */
+.course-info-column {
+    flex: 1 1 62%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+}
+
+.info-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.8rem;
+    box-shadow: var(--card-shadow);
+}
+
+.card-heading {
+    font-size: 1.3rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+}
+
+.overview-lead-text {
+    font-size: 1.05rem;
+    color: var(--primary-light);
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+}
+
+.overview-sub-text,
+.card-sub-text {
+    font-size: 0.94rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+.practical-callout {
+    margin-top: 1rem;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+}
+
+.practical-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+
+.practical-callout p {
+    font-size: 0.92rem;
+    color: #166534;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 500;
+}
+
+.info-grid-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+}
+
+.grid-info-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.4rem;
+    box-shadow: var(--card-shadow);
+}
+
+.grid-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.grid-info-card h4 {
+    font-size: 0.96rem;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+}
+
+.grid-info-card p {
+    font-size: 0.94rem;
+    color: var(--text-main);
+    font-weight: 600;
+    margin: 0;
+}
+
+.configured-placeholder {
+    font-style: italic;
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+
+.eligibility-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.1rem;
+}
+
+.check-mark {
+    color: #10b981;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.eligibility-box strong {
+    font-size: 0.92rem;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.eligibility-box p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.bottom-reg-banner {
+    background: linear-gradient(135deg, #0a2540 0%, #123e6b 100%);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 1.8rem 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    box-shadow: 0 8px 20px rgba(10, 37, 64, 0.15);
+}
+
+.bottom-reg-banner h3 {
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.bottom-reg-banner p {
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    margin: 0;
+}
+
+@media (max-width: 992px) {
+    .banner-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .course-two-column-layout {
+        flex-direction: column;
+    }
+
+    .course-media-column {
+        position: static;
+        width: 100%;
+    }
+
+    .course-featured-img {
+        height: 260px;
+    }
+}
+
+@media (max-width: 600px) {
+    .info-grid-row {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom-reg-banner {
+        flex-direction: column;
+        text-align: center;
+    }
+}
