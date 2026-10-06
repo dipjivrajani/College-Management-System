@@ -1,0 +1,77 @@
+@using Microsoft.AspNetCore.Authentication
+@using CollegeManagementSystem.Helpers
+@{
+    var currentPath = ViewContext.HttpContext.Request.Path.Value?.ToLower() ?? "";
+    var auth = await ViewContext.HttpContext.AuthenticateAsync(AuthHelper.StudentScheme);
+    var studentName = auth?.Principal?.Identity?.Name ?? Context.Session.GetString("StudentName") ?? "Student";
+    var studentId = auth?.Principal?.FindFirst("StudentId")?.Value ?? Context.Session.GetString("StudentId") ?? "Student ID";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Student Portal | Shree Sarswati Vishv Vidyalay</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/student.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/realtime.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="student-portal-body">
+    <!-- STUDENT NAVBAR -->
+    <header class="student-header">
+        <div class="student-header-inner">
+            <div class="student-brand">
+                <a href="/Student/Attendance" class="student-brand-link">
+                    <span class="student-logo">🎓</span>
+                    <div class="student-title-group">
+                        <span class="inst-name">Shree Sarswati Vishv Vidyalay</span>
+                        <span class="portal-badge">STUDENT ACADEMIC PORTAL</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="student-nav">
+                <a href="/Student/Attendance" class="s-nav-link @(currentPath.StartsWith("/student/attendance") ? "active" : "")">
+                    <span>📅</span> My Attendance
+                </a>
+                <a href="/Student/Marks" class="s-nav-link @(currentPath.StartsWith("/student/marks") ? "active" : "")">
+                    <span>📈</span> My Marks
+                </a>
+            </nav>
+
+            <!-- User Info & Logout -->
+            <div class="student-user-box">
+                <div class="s-profile-badge">
+                    <span class="s-avatar">👤</span>
+                    <div class="s-profile-info">
+                        <strong class="s-name">@studentName</strong>
+                        <span class="s-id">@studentId</span>
+                    </div>
+                </div>
+                <a href="/Logout?role=Student" class="btn-student-logout" title="Sign out from Student Portal">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN VIEWPORT -->
+    <main class="student-main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="student-footer">
+        <div class="student-footer-inner">
+            <p>&copy; 2026 Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar. Student Academic Information System.</p>
+        </div>
+    </footer>
+
+    <!-- SignalR Real-Time Updates -->
+    <script src="~/js/signalr.min.js" asp-append-version="true"></script>
+    <script src="~/js/realtime-client.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

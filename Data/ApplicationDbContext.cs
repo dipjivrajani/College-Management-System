@@ -18,6 +18,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<Marks> Marks => Set<Marks>();
+    public DbSet<Subject> Subjects => Set<Subject>();
+    public DbSet<SubjectComponent> SubjectComponents => Set<SubjectComponent>();
+    public DbSet<AcademicYear> AcademicYears => Set<AcademicYear>();
+    public DbSet<ResultAttempt> ResultAttempts => Set<ResultAttempt>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,13 +143,21 @@ public class ApplicationDbContext : DbContext
             }
         );
 
-        // Seed Default Admin
+        // Seed Academic Years for syllabus versioning
+        modelBuilder.Entity<AcademicYear>().HasData(
+            new AcademicYear { AcademicYearId = 1, YearCode = "2024-25", YearName = "Academic Year 2024-2025", IsActive = true, DisplayOrder = 1 },
+            new AcademicYear { AcademicYearId = 2, YearCode = "2025-26", YearName = "Academic Year 2025-2026", IsActive = true, DisplayOrder = 2 },
+            new AcademicYear { AcademicYearId = 3, YearCode = "2026-27", YearName = "Academic Year 2026-2027", IsActive = true, DisplayOrder = 3 },
+            new AcademicYear { AcademicYearId = 4, YearCode = "2027-28", YearName = "Academic Year 2027-2028", IsActive = true, DisplayOrder = 4 }
+        );
+
+        // Seed Default Admin with hashed credentials
         modelBuilder.Entity<Admin>().HasData(
             new Admin
             {
                 AdminId = 1,
-                Username = "admin",
-                Password = "admin123",
+                Username = "Admin#123",
+                Password = PasswordHelper.HashPassword("Deep#9425"),
                 FullName = "System Administrator",
                 Email = "admin@ssv.edu.in",
                 Role = "Admin"

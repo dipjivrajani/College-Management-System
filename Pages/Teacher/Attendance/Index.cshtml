@@ -1,0 +1,317 @@
+@page "/Teacher/Attendance"
+@model CollegeManagementSystem.Pages.TeacherPortal.AttendanceTeacher.IndexModel
+@{
+    Layout = "_TeacherLayout";
+    ViewData["Title"] = "Attendance Management";
+}
+
+<div class="teacher-container">
+    <div class="teacher-welcome-strip">
+        <div>
+            <h2>Class Attendance</h2>
+            <p>Department of @(Model.CurrentTeacher?.Department ?? "Science") &bull; Academic Year @DateTime.Now.Year</p>
+        </div>
+        <div class="badge-dept">
+            <span>Department: <strong>@(Model.CurrentTeacher?.Department ?? "Science")</strong></span>
+        </div>
+    </div>
+
+    <!-- Alert Notifications -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="t-alert t-alert-success">
+            <span>✓</span> <span>@Model.SuccessMessage</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="t-alert t-alert-danger">
+            <span>⚠️</span> <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <!-- TABS -->
+    <div class="teacher-tabs-bar">
+        <a href="?activeTab=mark&course=@Model.SelectedCourse&semester=@Model.SelectedSemester&markDate=@Model.MarkDate" 
+           class="t-tab-btn @(Model.ActiveTab == "mark" ? "active" : "")">
+            <span>📝</span> Mark Attendance
+        </a>
+        <a href="?activeTab=history&course=@Model.SelectedCourse" 
+           class="t-tab-btn @(Model.ActiveTab == "history" ? "active" : "")">
+            <span>📊</span> Attendance History
+        </a>
+    </div>
+
+    @if (Model.ActiveTab == "mark")
+    {
+        <div class="t-card">
+            <div class="t-card-header">
+                <div>
+                    <h3 class="t-card-title">Mark Daily Student Attendance</h3>
+                    <p class="t-card-sub">Select Course, Semester and Date to record student attendance.</p>
+                </div>
+            </div>
+
+            <!-- Filter Selection -->
+            <form method="get" class="t-filter-bar" id="teacherFilterForm">
+                <input type="hidden" name="activeTab" value="mark" />
+                <div class="t-filter-grid">
+                    <div class="t-form-group">
+                        <label for="selCourse">Course</label>
+                        <select id="selCourse" name="course" class="t-form-control" onchange="document.getElementById('teacherFilterForm').submit()">
+                            @foreach (var c in Model.Courses)
+                            {
+                                <option value="@c" selected="@(Model.SelectedCourse == c)">@c</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="t-form-group">
+                        <label for="selSem">Semester</label>
+                        <select id="selSem" name="semester" class="t-form-control" onchange="document.getElementById('teacherFilterForm').submit()">
+                            @foreach (var sem in Model.Semesters)
+                            {
+                                <option value="@sem" selected="@(Model.SelectedSemester == sem)">@sem</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="t-form-group">
+                        <label for="markDate">Attendance Date <span class="req-star">*</span></label>
+                        <input type="date" id="markDate" name="markDate" value="@Model.MarkDate" class="t-form-control" required onchange="document.getElementById('teacherFilterForm').submit()" />
+                    </div>
+                </div>
+            </form>
+
+            <!-- Marking Form -->
+            <form method="post" asp-page-handler="SaveAttendance" class="t-sheet-form">
+                <input type="hidden" name="course" value="@Model.SelectedCourse" />
+                <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+                <input type="hidden" name="markDate" value="@Model.MarkDate" />
+
+                <div class="t-sheet-toolbar">
+                    <div class="t-toolbar-info">
+                        <span class="t-badge-count">@Model.StudentsToMark.Count Students</span>
+                        @if (Model.StudentsToMark.Any(s => s.IsAlreadyMarked))
+                        {
+                            <span class="t-notice-updated">ℹ️ Attendance already recorded for this date. Submitting will update records.</span>
+                        }
+                    </div>
+                    @if (Model.StudentsToMark.Count > 0)
+                    {
+                        <div class="t-quick-actions">
+                            <button type="button" class="btn-t-quick" onclick="markAll('Present')">Mark All Present</button>
+                            <button type="button" class="btn-t-quick btn-t-quick-absent" onclick="markAll('Absent')">Mark All Absent</button>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.StudentsToMark.Count == 0)
+                {
+                    <div class="t-empty-state">
+                        <span class="t-empty-icon">👥</span>
+                        <h4>No Active Students Found</h4>
+                        <p>No students enrolled in <strong>@Model.SelectedCourse</strong> (@Model.SelectedSemester).</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="t-table-responsive">
+                        <table class="t-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th style="width: 170px;">Enrollment No</th>
+                                    <th>Student Name</th>
+                                    <th style="width: 130px;">Semester</th>
+                                    <th style="width: 200px; text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.StudentsToMark.Count; i++)
+                                {
+                                    var st = Model.StudentsToMark[i];
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>
+                                            <span class="t-id-pill">@st.StudentId</span>
+                                            <input type="hidden" name="studentIds" value="@st.StudentId" />
+                                        </td>
+                                        <td>
+                                            <strong class="t-student-name">@st.FullName</strong>
+                                            @if (st.IsAlreadyMarked)
+                                            {
+                                                <span class="t-tag-recorded">Recorded</span>
+                                            }
+                                        </td>
+                                        <td>@st.Semester</td>
+                                        <td style="text-align: center;">
+                                            <div class="t-status-group">
+                                                <label class="t-radio-label t-present-label">
+                                                    <input type="radio" name="statuses[@i]" value="Present" checked="@(st.Status == "Present")" id="t_p_@i" />
+                                                    Present
+                                                </label>
+                                                <label class="t-radio-label t-absent-label">
+                                                    <input type="radio" name="statuses[@i]" value="Absent" checked="@(st.Status == "Absent")" id="t_a_@i" />
+                                                    Absent
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="t-sheet-footer">
+                        <p class="t-footer-note">* Updates existing records automatically without creating duplicates.</p>
+                        <button type="submit" class="btn-t-primary">
+                            <span>💾</span> Save Attendance
+                        </button>
+                    </div>
+                }
+            </form>
+        </div>
+    }
+    else
+    {
+        <!-- HISTORY VIEW -->
+        <div class="t-stats-grid">
+            <div class="t-stat-card border-navy">
+                <span class="t-stat-icon">📚</span>
+                <div>
+                    <span class="t-stat-val">@Model.TotalClassesCount</span>
+                    <span class="t-stat-label">Total Records</span>
+                </div>
+            </div>
+            <div class="t-stat-card border-green">
+                <span class="t-stat-icon">✅</span>
+                <div>
+                    <span class="t-stat-val">@Model.PresentCount</span>
+                    <span class="t-stat-label">Present</span>
+                </div>
+            </div>
+            <div class="t-stat-card border-red">
+                <span class="t-stat-icon">❌</span>
+                <div>
+                    <span class="t-stat-val">@Model.AbsentCount</span>
+                    <span class="t-stat-label">Absent</span>
+                </div>
+            </div>
+            <div class="t-stat-card border-gold">
+                <span class="t-stat-icon">📊</span>
+                <div>
+                    <span class="t-stat-val">@Model.AttendancePercentage%</span>
+                    <span class="t-stat-label">Class Attendance</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-card-header">
+                <div>
+                    <h3 class="t-card-title">Attendance History: @Model.SelectedCourse</h3>
+                    <p class="t-card-sub">Historical attendance records sorted by latest date first.</p>
+                </div>
+                <a href="?activeTab=history&course=@Model.SelectedCourse" class="btn-t-reset">Reset Filters</a>
+            </div>
+
+            <!-- Filters -->
+            <form method="get" class="t-filter-bar">
+                <input type="hidden" name="activeTab" value="history" />
+                <input type="hidden" name="course" value="@Model.SelectedCourse" />
+                <div class="t-filter-grid-4">
+                    <div class="t-form-group">
+                        <label>Semester</label>
+                        <select name="historySemester" class="t-form-control">
+                            <option value="">-- All Semesters --</option>
+                            @foreach (var sem in Model.Semesters)
+                            {
+                                <option value="@sem" selected="@(Model.HistorySemester == sem)">@sem</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="t-form-group">
+                        <label>Student Search</label>
+                        <input type="text" name="historyStudent" value="@Model.HistoryStudent" class="t-form-control" placeholder="Search student name/ID..." />
+                    </div>
+
+                    <div class="t-form-group">
+                        <label>Date From</label>
+                        <input type="date" name="dateFrom" value="@Model.DateFrom" class="t-form-control" />
+                    </div>
+
+                    <div class="t-form-group">
+                        <label>Date To</label>
+                        <input type="date" name="dateTo" value="@Model.DateTo" class="t-form-control" />
+                    </div>
+
+                    <div class="t-form-group t-filter-btn-wrap">
+                        <button type="submit" class="btn-t-primary" style="width: 100%;">🔍 Filter</button>
+                    </div>
+                </div>
+            </form>
+
+            @if (Model.HistoryRecords.Count == 0)
+            {
+                <div class="t-empty-state">
+                    <span class="t-empty-icon">📅</span>
+                    <h4>No Records Found</h4>
+                    <p>No attendance records match your filter criteria.</p>
+                </div>
+            }
+            else
+            {
+                <div class="t-table-responsive">
+                    <table class="t-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">Date</th>
+                                <th style="width: 160px;">Enrollment No</th>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th style="width: 110px;">Semester</th>
+                                <th style="width: 100px; text-align: center;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.HistoryRecords)
+                            {
+                                <tr>
+                                    <td>@r.Date.ToString("dd/MM/yyyy")</td>
+                                    <td><span class="t-id-pill">@r.StudentId</span></td>
+                                    <td><strong class="t-student-name">@r.StudentName</strong></td>
+                                    <td>@r.Course</td>
+                                    <td>@r.Semester</td>
+                                    <td style="text-align: center;">
+                                        @if (r.Status.Equals("Present", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="t-badge-present">Present</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="t-badge-absent">Absent</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function markAll(status) {
+            var count = @Model.StudentsToMark.Count;
+            for (var i = 0; i < count; i++) {
+                var radio = document.getElementById(status === 'Present' ? ('t_p_' + i) : ('t_a_' + i));
+                if (radio) radio.checked = true;
+            }
+        }
+    </script>
+}

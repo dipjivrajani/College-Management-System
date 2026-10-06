@@ -1,0 +1,683 @@
+@page "/Admin/Students"
+@model CollegeManagementSystem.Pages.Admin.Students.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Student Management";
+    ViewData["HeaderTitle"] = "Student Directory & Management";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-students.css" asp-append-version="true" />
+}
+
+<div class="students-page-container">
+    <!-- Header & Add Button -->
+    <div class="students-header-row">
+        <div class="students-header-title">
+            <h1>Student Directory &amp; Management</h1>
+            <p>Manage undergraduate scholars, automatic enrollment ID generation, and academic statuses.</p>
+        </div>
+        <a href="/Admin/Students?openAdd=true" class="btn-add-student">
+            <span>➕</span> Add New Student
+        </a>
+    </div>
+
+    <!-- Generated Credentials Banner -->
+    @if (!string.IsNullOrEmpty(Model.CreatedCredentials))
+    {
+        <div class="credentials-banner">
+            <span class="credentials-icon">🔑</span>
+            <div class="credentials-content">
+                <strong>Student Account Created Successfully! Please record these initial credentials:</strong>
+                <span class="credentials-details">@Model.CreatedCredentials</span>
+            </div>
+        </div>
+    }
+
+    <!-- Feedback Message Alert -->
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-feedback">
+            @Model.StatusMessage
+        </div>
+    }
+
+    <!-- Search & Filter Card -->
+    <div class="filter-card-bar">
+        <form method="get" class="filter-form-flex">
+            <!-- Search Query Input -->
+            <div class="search-input-wrap">
+                <span class="search-icon-symbol">🔍</span>
+                <input type="text" name="search" value="@Model.SearchTerm" class="search-input" placeholder="Search by name, enrollment no, course, department, or email..." />
+            </div>
+
+            <!-- Course Filter -->
+            <select name="courseFilter" class="filter-select">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.CourseFilter) || Model.CourseFilter == "All")">All Science Courses</option>
+                @foreach (var c in Model.AvailableCourses)
+                {
+                    <option value="@c.CourseName" selected="@(Model.CourseFilter == c.CourseName)">@c.CourseName</option>
+                }
+            </select>
+
+            <!-- Status Filter -->
+            <select name="statusFilter" class="filter-select">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.StatusFilter) || Model.StatusFilter == "All")">All Statuses</option>
+                <option value="Active" selected="@(Model.StatusFilter?.ToLower() == "active")">Active Only</option>
+                <option value="Inactive" selected="@(Model.StatusFilter?.ToLower() == "inactive")">Inactive Only</option>
+            </select>
+
+            <button type="submit" class="btn-filter-submit">Filter</button>
+            @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.CourseFilter) || !string.IsNullOrEmpty(Model.StatusFilter))
+            {
+                <a href="/Admin/Students" class="btn-filter-clear">Clear Filters</a>
+            }
+
+            <!-- Summary Count Pills -->
+            <div class="filter-pills-summary">
+                <span class="count-pill">Total: @Model.TotalCount</span>
+                <span class="count-pill active">Active: @Model.ActiveCount</span>
+                <span class="count-pill">Inactive: @Model.InactiveCount</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Students Table Card -->
+    <div class="students-table-card">
+        @if (!Model.Students.Any())
+        {
+            <div class="empty-state-notice">
+                <p>No students match your criteria.</p>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.CourseFilter))
+                {
+                    <a href="/Admin/Students" class="btn-admin-action secondary" style="margin-top: 8px;">View All Students</a>
+                }
+                else
+                {
+                    <a href="/Admin/Students?openAdd=true" class="btn-admin-action primary" style="margin-top: 8px;">+ Add New Student</a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="panel-table-wrap">
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th class="col-enrollment">Enrollment No</th>
+                            <th class="col-name">Student Name</th>
+                            <th class="col-course">Course</th>
+                            <th class="col-dept">Department</th>
+                            <th class="col-year">Admission Year</th>
+                            <th class="col-mobile">Mobile</th>
+                            <th class="col-email">Email</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.Students)
+                        {
+                            <tr>
+                                <!-- Enrollment No (Clickable) -->
+                                <td class="col-enrollment">
+                                    <a href="/Admin/Students?viewId=@s.StudentId" class="student-id-link" title="Click to view full profile">
+                                        @s.StudentId
+                                    </a>
+                                </td>
+
+                                <!-- Student Name with avatar initials -->
+                                <td class="col-name">
+                                    <div class="student-name-cell">
+                                        <div class="student-avatar-small">
+                                            @(s.FullName.Length > 0 ? s.FullName.Substring(0, 1).ToUpper() : "S")
+                                        </div>
+                                        <a href="/Admin/Students?viewId=@s.StudentId" class="student-name-text" title="View Profile">
+                                            @s.FullName
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <!-- Course -->
+                                <td class="col-course">
+                                    <span class="course-badge">@s.Course</span>
+                                </td>
+
+                                <!-- Department -->
+                                <td class="col-dept">
+                                    <span class="dept-text">@s.Department</span>
+                                </td>
+
+                                <!-- Admission Year -->
+                                <td class="col-year">
+                                    <span class="year-text">@s.AdmissionYear</span>
+                                </td>
+
+                                <!-- Mobile -->
+                                <td class="col-mobile">
+                                    <span class="student-mobile-text">@(string.IsNullOrEmpty(s.Mobile) ? "—" : s.Mobile)</span>
+                                </td>
+
+                                <!-- Email -->
+                                <td class="col-email">
+                                    <span class="student-email-text" title="@s.Email">@s.Email</span>
+                                </td>
+
+                                <!-- Status Badge -->
+                                <td class="col-status">
+                                    <span class="@(s.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "badge-status-active" : "badge-status-inactive")">
+                                        @s.Status
+                                    </span>
+                                </td>
+
+                                <!-- Action Buttons -->
+                                <td class="col-actions">
+                                    <div class="action-buttons-group">
+                                        <!-- View Profile -->
+                                        <a href="/Admin/Students?viewId=@s.StudentId" class="action-btn view" title="View Student Profile">
+                                            <span>👁️</span> View
+                                        </a>
+
+                                        <!-- Edit -->
+                                        <a href="/Admin/Students?editId=@s.StudentId" class="action-btn edit" title="Edit Student Details">
+                                            <span>✏️</span> Edit
+                                        </a>
+
+                                        <!-- Password -->
+                                        <a href="/Admin/Students?passwordId=@s.StudentId" class="action-btn pwd" title="Change Student Password">
+                                            <span>🔑</span> Pwd
+                                        </a>
+
+                                        <!-- Activate/Deactivate Toggle Form -->
+                                        <form method="post" asp-page-handler="ToggleStatus" asp-route-id="@s.StudentId" style="display:inline; margin:0;">
+                                            <button type="submit" class="action-btn toggle @(s.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "active-state" : "inactive-state")" title="Click to @(s.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "Deactivate" : "Activate")">
+                                                <span>@(s.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "⏸️ Deactivate" : "▶️ Activate")</span>
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete Confirmation -->
+                                        <a href="/Admin/Students?deleteId=@s.StudentId" class="action-btn delete" title="Delete Student">
+                                            <span>🗑️</span> Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ========================================================
+     MODAL 1: ADD NEW STUDENT
+     ======================================================== -->
+@if (Model.ShowAddModal)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>➕ Add New Student Scholar</h3>
+                <a href="/Admin/Students" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-body">
+                    <p style="font-size: 0.82rem; color: var(--admin-muted); margin-bottom: 14px;">
+                        Enrollment Number (e.g. <code>26SSVBOT001</code>), 5-year validity (2026–2030), and initial password (e.g. <code>Rahul#001</code>) will be generated automatically and securely hashed in the database.
+                    </p>
+
+                    <div class="modal-form-grid">
+                        <!-- Full Name -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Full Name <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="NewStudent.FullName" class="modal-input" placeholder="e.g. Rahul Patel" required />
+                            <span asp-validation-for="NewStudent.FullName" style="font-size: 0.76rem; color:#dc2626;"></span>
+                        </div>
+
+                        <!-- Course -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Course <span style="color:#ef4444;">*</span></label>
+                            <select asp-for="NewStudent.Course" class="modal-input" id="newStudentCourse" required>
+                                <option value="B.Sc. Botany">B.Sc. Botany</option>
+                                <option value="B.Sc. Chemistry">B.Sc. Chemistry</option>
+                                <option value="B.Sc. Computer Science">B.Sc. Computer Science</option>
+                                <option value="B.Sc. Forensic Science">B.Sc. Forensic Science</option>
+                                <option value="B.Sc. Microbiology">B.Sc. Microbiology</option>
+                                <option value="B.Sc. Physics">B.Sc. Physics</option>
+                                <option value="B.Sc. Zoology">B.Sc. Zoology</option>
+                            </select>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Department</label>
+                            <input asp-for="NewStudent.Department" class="modal-input modal-input-readonly" id="newStudentDept" value="Botany" readonly style="background-color: #f8fafc;" />
+                        </div>
+
+                        <!-- Admission Year -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Admission Year</label>
+                            <input asp-for="NewStudent.AdmissionYear" type="number" class="modal-input" value="@DateTime.Today.Year" />
+                        </div>
+
+                        <!-- Semester -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Semester</label>
+                            <select asp-for="NewStudent.Semester" class="modal-input">
+                                <option value="Semester 1">Semester 1</option>
+                                <option value="Semester 2">Semester 2</option>
+                                <option value="Semester 3">Semester 3</option>
+                                <option value="Semester 4">Semester 4</option>
+                                <option value="Semester 5">Semester 5</option>
+                                <option value="Semester 6">Semester 6</option>
+                            </select>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Email Address <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="NewStudent.Email" type="email" class="modal-input" placeholder="student@example.com" required />
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Mobile Number</label>
+                            <input asp-for="NewStudent.Mobile" class="modal-input" placeholder="10-digit mobile number" maxlength="10" />
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Gender</label>
+                            <select asp-for="NewStudent.Gender" class="modal-input">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Date of Birth</label>
+                            <input asp-for="NewStudent.DateOfBirth" type="date" class="modal-input" />
+                        </div>
+
+                        <!-- Father's Name -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Father's Name</label>
+                            <input asp-for="NewStudent.FatherName" class="modal-input" placeholder="Father's full name" />
+                        </div>
+
+                        <!-- Father's Occupation -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Father's Occupation</label>
+                            <input asp-for="NewStudent.FatherOccupation" class="modal-input" placeholder="Occupation" />
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">City</label>
+                            <input asp-for="NewStudent.City" class="modal-input" value="Bhavnagar" />
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Student Status</label>
+                            <select asp-for="NewStudent.Status" class="modal-input">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Residential Address</label>
+                            <input asp-for="NewStudent.Address" class="modal-input" placeholder="Street address, area, city" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Students" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-save">Create Student &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 2: VIEW STUDENT PROFILE
+     ======================================================== -->
+@if (Model.ViewStudent != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>🎓 Student Academic Profile</h3>
+                <a href="/Admin/Students" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <div class="modal-body">
+                <div class="profile-modal-grid">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar-large">🔬</div>
+                        <span class="profile-id-tag">@Model.ViewStudent.StudentId</span>
+                        <span class="profile-status-pill @(Model.ViewStudent.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "badge-status-active" : "badge-status-inactive")">
+                            @Model.ViewStudent.Status
+                        </span>
+                    </div>
+
+                    <div class="profile-details-list">
+                        <div class="profile-item">
+                            <span class="profile-label">Full Name</span>
+                            <span class="profile-val">@Model.ViewStudent.FullName</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Enrollment Number</span>
+                            <span class="profile-val" style="font-family: monospace;">@Model.ViewStudent.StudentId</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Course</span>
+                            <span class="profile-val">@Model.ViewStudent.Course</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Department</span>
+                            <span class="profile-val">@Model.ViewStudent.Department</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Admission Year</span>
+                            <span class="profile-val">@Model.ViewStudent.AdmissionYear</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Valid Until</span>
+                            <span class="profile-val">@Model.ViewStudent.ValidUntil</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Semester</span>
+                            <span class="profile-val">@Model.ViewStudent.Semester</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Admission Date</span>
+                            <span class="profile-val">@Model.ViewStudent.AdmissionDate.ToString("dd MMM yyyy")</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Date of Birth</span>
+                            <span class="profile-val">@(Model.ViewStudent.DateOfBirth.HasValue ? Model.ViewStudent.DateOfBirth.Value.ToString("dd MMM yyyy") : "—")</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Gender</span>
+                            <span class="profile-val">@Model.ViewStudent.Gender</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Mobile</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewStudent.Mobile) ? "—" : Model.ViewStudent.Mobile)</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Email</span>
+                            <span class="profile-val">@Model.ViewStudent.Email</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Father's Name</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewStudent.FatherName) ? "—" : Model.ViewStudent.FatherName)</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Father's Occupation</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewStudent.FatherOccupation) ? "—" : Model.ViewStudent.FatherOccupation)</span>
+                        </div>
+                        <div class="profile-item" style="grid-column: span 2;">
+                            <span class="profile-label">Address</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewStudent.Address) ? Model.ViewStudent.City : Model.ViewStudent.Address + ", " + Model.ViewStudent.City)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/Admin/Students?editId=@Model.ViewStudent.StudentId" class="btn-modal-save">Edit Profile</a>
+                <a href="/Admin/Students?passwordId=@Model.ViewStudent.StudentId" class="btn-modal-cancel" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">Change Password</a>
+                <a href="/Admin/Students" class="btn-modal-cancel">Close</a>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 3: EDIT STUDENT
+     ======================================================== -->
+@if (Model.EditStudent != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>✏️ Edit Student Details</h3>
+                <a href="/Admin/Students" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="Edit">
+                <input type="hidden" asp-for="EditInput.StudentId" />
+                <div class="modal-body">
+                    <div class="modal-form-grid">
+                        <!-- Enrollment Number (Read-only) -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Enrollment Number (Protected)</label>
+                            <input type="text" class="modal-input modal-input-readonly" value="@Model.EditInput.StudentId" readonly />
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Full Name <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="EditInput.FullName" class="modal-input" required />
+                        </div>
+
+                        <!-- Course -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Course</label>
+                            <select asp-for="EditInput.Course" class="modal-input" id="editStudentCourse">
+                                <option value="B.Sc. Botany">B.Sc. Botany</option>
+                                <option value="B.Sc. Chemistry">B.Sc. Chemistry</option>
+                                <option value="B.Sc. Computer Science">B.Sc. Computer Science</option>
+                                <option value="B.Sc. Forensic Science">B.Sc. Forensic Science</option>
+                                <option value="B.Sc. Microbiology">B.Sc. Microbiology</option>
+                                <option value="B.Sc. Physics">B.Sc. Physics</option>
+                                <option value="B.Sc. Zoology">B.Sc. Zoology</option>
+                            </select>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Department</label>
+                            <input asp-for="EditInput.Department" class="modal-input modal-input-readonly" id="editStudentDept" readonly style="background-color: #f8fafc;" />
+                        </div>
+
+                        <!-- Semester -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Semester</label>
+                            <select asp-for="EditInput.Semester" class="modal-input">
+                                <option value="Semester 1">Semester 1</option>
+                                <option value="Semester 2">Semester 2</option>
+                                <option value="Semester 3">Semester 3</option>
+                                <option value="Semester 4">Semester 4</option>
+                                <option value="Semester 5">Semester 5</option>
+                                <option value="Semester 6">Semester 6</option>
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Status</label>
+                            <select asp-for="EditInput.Status" class="modal-input">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Email Address <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="EditInput.Email" type="email" class="modal-input" required />
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Mobile Number</label>
+                            <input asp-for="EditInput.Mobile" class="modal-input" maxlength="10" />
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Gender</label>
+                            <select asp-for="EditInput.Gender" class="modal-input">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Date of Birth</label>
+                            <input asp-for="EditInput.DateOfBirth" type="date" class="modal-input" />
+                        </div>
+
+                        <!-- Father's Name -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Father's Name</label>
+                            <input asp-for="EditInput.FatherName" class="modal-input" />
+                        </div>
+
+                        <!-- Father's Occupation -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Father's Occupation</label>
+                            <input asp-for="EditInput.FatherOccupation" class="modal-input" />
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">City</label>
+                            <input asp-for="EditInput.City" class="modal-input" />
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Address</label>
+                            <input asp-for="EditInput.Address" class="modal-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Students" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 4: CHANGE PASSWORD
+     ======================================================== -->
+@if (Model.PasswordStudent != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h3>🔑 Change Student Password</h3>
+                <a href="/Admin/Students" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="ChangePassword">
+                <input type="hidden" asp-for="PasswordInput.StudentId" />
+                <div class="modal-body">
+                    <p style="font-size: 0.84rem; color: var(--admin-muted); margin-bottom: 12px;">
+                        Reset password for scholar <strong>@Model.PasswordInput.StudentName</strong> (<code>@Model.PasswordInput.StudentId</code>). Passwords are encrypted before saving.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="form-group-modal">
+                            <label class="modal-label">New Password <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="PasswordInput.NewPassword" type="password" class="modal-input" placeholder="Enter new password" required minlength="4" />
+                        </div>
+                        <div class="form-group-modal">
+                            <label class="modal-label">Confirm New Password <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="PasswordInput.ConfirmPassword" type="password" class="modal-input" placeholder="Repeat new password" required minlength="4" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Students" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-save">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 5: DELETE CONFIRMATION POPUP
+     ======================================================== -->
+@if (Model.DeleteStudent != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header" style="background-color: #fef2f2; border-bottom-color: #fecaca;">
+                <h3 style="color: #991b1b;">⚠️ Confirm Student Deletion</h3>
+                <a href="/Admin/Students" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@Model.DeleteStudent.StudentId">
+                <div class="modal-body">
+                    <div class="delete-warning-box">
+                        <div class="delete-warning-icon">🗑️</div>
+                        <p style="margin: 0; font-weight: 700; color: #7f1d1d;">Are you sure you want to delete this student?</p>
+                        <div class="delete-student-highlight">
+                            @Model.DeleteStudent.FullName<br />
+                            <code style="font-size: 0.9rem; color: #b91c1c;">@Model.DeleteStudent.StudentId</code>
+                        </div>
+                        <p class="delete-info-note">
+                            Note: This action permanently deletes the student record. To preserve historical records, you can click <strong>Cancel</strong> and toggle the student to <strong>Inactive</strong> instead.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Students" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-delete">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var deptMap = {
+                "B.Sc. Botany": "Botany",
+                "B.Sc. Zoology": "Zoology",
+                "B.Sc. Chemistry": "Chemistry",
+                "B.Sc. Physics": "Physics",
+                "B.Sc. Microbiology": "Microbiology",
+                "B.Sc. Forensic Science": "Forensic Science",
+                "B.Sc. Computer Science": "Computer Science"
+            };
+
+            // Add Student Modal Course -> Department synchronization
+            var newCourseSelect = document.getElementById("newStudentCourse");
+            var newDeptInput = document.getElementById("newStudentDept");
+            if (newCourseSelect && newDeptInput) {
+                newCourseSelect.addEventListener("change", function () {
+                    var val = newCourseSelect.value;
+                    if (deptMap[val]) {
+                        newDeptInput.value = deptMap[val];
+                    }
+                });
+            }
+
+            // Edit Student Modal Course -> Department synchronization
+            var editCourseSelect = document.getElementById("editStudentCourse");
+            var editDeptInput = document.getElementById("editStudentDept");
+            if (editCourseSelect && editDeptInput) {
+                editCourseSelect.addEventListener("change", function () {
+                    var val = editCourseSelect.value;
+                    if (deptMap[val]) {
+                        editDeptInput.value = deptMap[val];
+                    }
+                });
+            }
+        });
+    </script>
+}

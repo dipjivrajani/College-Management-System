@@ -1,4 +1,7 @@
 @page "/login"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using CollegeManagementSystem.Helpers
 @using System.Security.Cryptography
 @using System.Text
 @{
@@ -34,12 +37,39 @@
 
 @inject CollegeManagementSystem.Data.ApplicationDbContext DbContext
 
-    public void OnGet()
+    public void OnGet(string? role, string? returnUrl)
     {
+        if (!string.IsNullOrEmpty(role) && (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || role.Equals("Teacher", StringComparison.OrdinalIgnoreCase) || role.Equals("Student", StringComparison.OrdinalIgnoreCase)))
+        {
+            Role = role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : (role.Equals("Teacher", StringComparison.OrdinalIgnoreCase) ? "Teacher" : "Student");
+        }
+        else if (!string.IsNullOrEmpty(returnUrl))
+        {
+            if (returnUrl.Contains("/Admin", StringComparison.OrdinalIgnoreCase)) Role = "Admin";
+            else if (returnUrl.Contains("/Teacher", StringComparison.OrdinalIgnoreCase)) Role = "Teacher";
+            else if (returnUrl.Contains("/Student", StringComparison.OrdinalIgnoreCase)) Role = "Student";
+        }
         GenerateNewCaptcha();
     }
 
-    public void OnPost()
+    public async Task<IActionResult> OnGetLogoutAsync(string? role)
+    {
+        if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            await HttpContext.SignOutAsync(AuthHelper.AdminScheme);
+        }
+        else if (string.Equals(role, "Teacher", StringComparison.OrdinalIgnoreCase))
+        {
+            await HttpContext.SignOutAsync(AuthHelper.TeacherScheme);
+        }
+        else if (string.Equals(role, "Student", StringComparison.OrdinalIgnoreCase))
+        {
+            await HttpContext.SignOutAsync(AuthHelper.StudentScheme);
+        }
+        return RedirectToPage("/Login");
+    }
+
+    public async Task<IActionResult> OnPostAsync(string? returnUrl)
     {
         // 1. Validate CAPTCHA
         bool isCaptchaValid = CheckCaptchaAnswer(CaptchaInput, CaptchaToken);
@@ -49,55 +79,120 @@
 
         // Always clear the CAPTCHA answer input field for next display
         CaptchaInput = "";
-        // Always clear password field for security
         Password = "";
 
         if (!isCaptchaValid)
         {
-            // If CAPTCHA is incorrect: Show "Invalid CAPTCHA." & generate a new CAPTCHA
             ErrorMessage = "Invalid CAPTCHA.";
             GenerateNewCaptcha();
-            return;
+            return Page();
         }
 
-        // 2. Validate Credentials
+        // 2. Validate Credentials & Sign In with Role-Specific Cookie
         if (Role == "Admin")
         {
-            var admin = DbContext.Admins.FirstOrDefault(a => a.Username.ToLower() == enteredId.ToLower() && a.Password == enteredPass);
-            if (admin != null || (enteredId.ToLower() == "admin" && enteredPass == "admin123"))
+            var admin = DbContext.Admins.FirstOrDefault(a => a.Username.ToLower() == enteredId.ToLower());
+            if (admin != null && CollegeManagementSystem.Models.PasswordHelper.VerifyPassword(enteredPass, admin.Password))
             {
-                HttpContext.Session.SetString("UserRole", "Admin");
-                HttpContext.Session.SetString("UserName", admin?.FullName ?? "System Administrator");
-                Response.Redirect("/Admin");
-                return;
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, admin.Username),
+                    new Claim(ClaimTypes.Name, admin.FullName),
+                    new Claim(ClaimTypes.Role, "Admin"),
+                    new Claim("UserId", admin.Username)
+                };
+                var identity = new ClaimsIdentity(claims, AuthHelper.AdminScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(AuthHelper.AdminScheme, principal, new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                });
+
+                HttpContext.Session.SetString("AdminId", admin.Username);
+                HttpContext.Session.SetString("AdminName", admin.FullName);
+                HttpContext.Session.SetString("Role", "Admin");
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) && returnUrl.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Redirect(returnUrl);
+                }
+                return RedirectToPage("/Admin/Index");
             }
         }
         else if (Role == "Teacher")
         {
-            var teacher = DbContext.Teachers.FirstOrDefault(t => t.TeacherId.ToLower() == enteredId.ToLower() && t.Password == enteredPass);
-            if (teacher != null)
+            var teacher = DbContext.Teachers.FirstOrDefault(t => t.TeacherId.ToLower() == enteredId.ToLower());
+            if (teacher != null && teacher.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) && CollegeManagementSystem.Models.PasswordHelper.VerifyPassword(enteredPass, teacher.Password))
             {
-                HttpContext.Session.SetString("UserRole", "Teacher");
-                HttpContext.Session.SetString("UserName", teacher.FullName);
-                Response.Redirect("/");
-                return;
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, teacher.TeacherId),
+                    new Claim(ClaimTypes.Name, teacher.FullName),
+                    new Claim(ClaimTypes.Role, "Teacher"),
+                    new Claim("TeacherId", teacher.TeacherId),
+                    new Claim("Department", teacher.Department ?? "")
+                };
+                var identity = new ClaimsIdentity(claims, AuthHelper.TeacherScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(AuthHelper.TeacherScheme, principal, new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                });
+
+                HttpContext.Session.SetString("TeacherId", teacher.TeacherId);
+                HttpContext.Session.SetString("TeacherName", teacher.FullName);
+                HttpContext.Session.SetString("Role", "Teacher");
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) && returnUrl.StartsWith("/Teacher", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Redirect(returnUrl);
+                }
+                return RedirectToPage("/Teacher/Attendance/Index");
             }
         }
         else if (Role == "Student")
         {
-            var student = DbContext.Students.FirstOrDefault(s => s.StudentId.ToLower() == enteredId.ToLower() && s.Password == enteredPass);
-            if (student != null)
+            var student = DbContext.Students.FirstOrDefault(s => s.StudentId.ToLower() == enteredId.ToLower());
+            if (student != null && student.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) && CollegeManagementSystem.Models.PasswordHelper.VerifyPassword(enteredPass, student.Password))
             {
-                HttpContext.Session.SetString("UserRole", "Student");
-                HttpContext.Session.SetString("UserName", student.FullName);
-                Response.Redirect("/");
-                return;
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, student.StudentId),
+                    new Claim(ClaimTypes.Name, student.FullName),
+                    new Claim(ClaimTypes.Role, "Student"),
+                    new Claim("StudentId", student.StudentId),
+                    new Claim("Course", student.Course ?? ""),
+                    new Claim("Department", student.Department ?? "")
+                };
+                var identity = new ClaimsIdentity(claims, AuthHelper.StudentScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(AuthHelper.StudentScheme, principal, new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                });
+
+                HttpContext.Session.SetString("StudentId", student.StudentId);
+                HttpContext.Session.SetString("StudentName", student.FullName);
+                HttpContext.Session.SetString("Role", "Student");
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) && returnUrl.StartsWith("/Student", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Redirect(returnUrl);
+                }
+                return RedirectToPage("/Student/Attendance/Index");
             }
         }
 
-        // Generic error if invalid: "Invalid ID or Password."
+        // Generic error if invalid
         ErrorMessage = "Invalid ID or Password.";
         GenerateNewCaptcha();
+        return Page();
     }
 
     private void GenerateNewCaptcha()

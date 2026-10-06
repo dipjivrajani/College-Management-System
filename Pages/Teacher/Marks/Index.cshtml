@@ -1,0 +1,361 @@
+@page "/Teacher/Marks"
+@model CollegeManagementSystem.Pages.TeacherPortal.MarksTeacher.IndexModel
+@{
+    Layout = "_TeacherLayout";
+    ViewData["Title"] = "Academic Marks Management";
+}
+
+<div class="teacher-container">
+    <div class="teacher-welcome-strip">
+        <div>
+            <h2>Academic Marks &amp; Result Evaluation</h2>
+            <p>Faculty Portal &bull; Department of @(Model.CurrentTeacher?.Department ?? "Science") &bull; Course Examination Records</p>
+        </div>
+        <div class="badge-dept">
+            <span>Course: <strong>@Model.SelectedCourse</strong></span>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="t-alert t-alert-success">
+            <span>✓</span> <span>@Model.SuccessMessage</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="t-alert t-alert-danger">
+            <span>⚠️</span> <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    @if (Model.SelectedStudent != null)
+    {
+        <!-- TEACHER STUDENT MARKS EDITOR -->
+        <div class="t-student-editor">
+            <div class="editor-top-actions">
+                <a href="/Teacher/Marks?SelectedCourse=@Uri.EscapeDataString(Model.SelectedStudent.Course)&SelectedAdmissionYear=@Model.SelectedStudent.AdmissionYear&SelectedSemester=@Uri.EscapeDataString(Model.SelectedStudent.Semester)" class="btn-back">
+                    &larr; Back to Students List
+                </a>
+                <a asp-page-handler="DownloadPdf" 
+                   asp-route-studentId="@Model.SelectedStudent.StudentId" 
+                   asp-route-semester="@Model.ActiveTabSemester" 
+                   target="_blank" 
+                   class="btn-pdf">
+                    📄 Generate Result PDF (@Model.ActiveTabSemester)
+                </a>
+            </div>
+
+            <!-- Profile Summary -->
+            <div class="t-card" style="margin-bottom: 1.25rem;">
+                <div class="student-meta-banner">
+                    <div>
+                        <span class="meta-label">Student Name:</span>
+                        <strong class="meta-val">@Model.SelectedStudent.FullName</strong>
+                    </div>
+                    <div>
+                        <span class="meta-label">Enrollment:</span>
+                        <strong class="meta-val font-mono">@Model.SelectedStudent.StudentId</strong>
+                    </div>
+                    <div>
+                        <span class="meta-label">Course:</span>
+                        <span class="meta-val">@Model.SelectedStudent.Course</span>
+                    </div>
+                    <div>
+                        <span class="meta-label">Admission Year:</span>
+                        <span class="meta-val">@Model.SelectedStudent.AdmissionYear</span>
+                    </div>
+                    <div>
+                        <span class="meta-label">Current Sem:</span>
+                        <span class="meta-val">@Model.SelectedStudent.Semester</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semester Tabs (1 - 6) -->
+            <div class="sem-tabs-row">
+                @foreach (var sem in CollegeManagementSystem.Pages.TeacherPortal.MarksTeacher.IndexModel.SemesterList)
+                {
+                    <a href="/Teacher/Marks?selectedStudentId=@Model.SelectedStudent.StudentId&activeTabSemester=@Uri.EscapeDataString(sem)" 
+                       class="sem-tab-btn @(Model.ActiveTabSemester == sem ? "active" : "")">
+                        <span>@sem</span>
+                        @if (Model.OverallAcademicResult != null && Model.OverallAcademicResult.SemesterResults.TryGetValue(sem, out var sRes) && sRes.IsCompleted)
+                        {
+                            <span class="sem-sgpa-mini">SGPA: @(sRes.SGPA?.ToString("0.00") ?? "--")</span>
+                        }
+                    </a>
+                }
+            </div>
+
+            <!-- Marks Form -->
+            <form method="post" asp-page-handler="SaveStudentMarks" class="t-card" onsubmit="return validateTeacherMarks()">
+                <input type="hidden" name="studentId" value="@Model.SelectedStudent.StudentId" />
+                <input type="hidden" name="semester" value="@Model.ActiveTabSemester" />
+
+                <div class="t-card-header">
+                    <h3 class="t-card-title">@Model.ActiveTabSemester &mdash; Marks Evaluation Components</h3>
+                    <span class="t-badge-info">Internal Assessment strictly max 30 marks</span>
+                </div>
+
+                @if (Model.SemesterSubjects.Count == 0)
+                {
+                    <div style="padding: 2.5rem; text-align: center; color: #64748b;">
+                        <h4>No subjects configured for @Model.ActiveTabSemester in this course.</h4>
+                    </div>
+                }
+                else
+                {
+                    <div class="t-table-responsive">
+                        <table class="t-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Code</th>
+                                    <th>Subject</th>
+                                    <th style="width: 70px; text-align: center;">Credits</th>
+                                    <th style="min-width: 450px;">Evaluation Components</th>
+                                    <th style="width: 90px; text-align: center;">Total</th>
+                                    <th style="width: 65px; text-align: center;">Grade</th>
+                                    <th style="width: 80px; text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sub in Model.SemesterSubjects)
+                                {
+                                    var subComps = sub.Components.OrderBy(c => c.ComponentType == "Internal" ? 1 : 2).ToList();
+                                    var subResult = Model.CurrentSemesterResult?.Subjects.FirstOrDefault(r => r.SubjectId == sub.SubjectId);
+
+                                    <tr>
+                                        <td>
+                                            <span class="badge-code">@sub.SubjectCode</span>
+                                        </td>
+                                        <td>
+                                            <strong>@sub.SubjectName</strong>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="badge-cr">@sub.Credits Cr</span>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                                @foreach (var comp in subComps)
+                                                {
+                                                    var existingMark = Model.StudentSemesterMarks.FirstOrDefault(m =>
+                                                        (m.SubjectId == sub.SubjectId || m.SubjectName == sub.SubjectName) &&
+                                                        (m.ComponentType.Equals(comp.ComponentType, StringComparison.OrdinalIgnoreCase) || m.ExamType.Equals(comp.ComponentType, StringComparison.OrdinalIgnoreCase)));
+
+                                                    decimal obtVal = existingMark?.ObtainedMarks ?? 0;
+                                                    string dateVal = existingMark?.ExamDate?.ToString("yyyy-MM-dd") ?? "";
+
+                                                    <div class="t-comp-item comp-@comp.ComponentType.ToLower()">
+                                                        <input type="hidden" name="subjectIds" value="@sub.SubjectId" />
+                                                        <input type="hidden" name="componentTypes" value="@comp.ComponentType" />
+                                                        <input type="hidden" name="maxMarksList" value="@comp.MaximumMarks" />
+
+                                                        <div class="t-comp-head">
+                                                            <span>@comp.ComponentType</span>
+                                                            <small>Max: @comp.MaximumMarks.ToString("0.#")</small>
+                                                        </div>
+                                                        <div class="t-comp-inputs">
+                                                            <input type="number" 
+                                                                   name="obtainedMarksList" 
+                                                                   class="t-form-control t-marks-in" 
+                                                                   step="0.5" 
+                                                                   min="0" 
+                                                                   max="@comp.MaximumMarks" 
+                                                                   value="@obtVal.ToString("0.##")" 
+                                                                   data-comp="@comp.ComponentType" 
+                                                                   data-max="@comp.MaximumMarks" 
+                                                                   required />
+                                                            <input type="date" 
+                                                                   name="examDatesList" 
+                                                                   class="t-form-control t-date-in" 
+                                                                   value="@dateVal" />
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <strong>@(subResult?.TotalObtained.ToString("0.##") ?? "0")</strong>
+                                            <small style="color: #64748b; display: block;">/ @(subResult?.TotalMax.ToString("0.##") ?? "0")</small>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="grade-tag">@(subResult?.Grade ?? "--")</span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="status-tag @(subResult?.IsPass == true ? "pass" : "fail")">
+                                                @(subResult?.IsPass == true ? "PASS" : (subResult?.TotalMax > 0 ? "FAIL" : "--"))
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="padding: 1rem 1.25rem; background: #fafbfc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <small style="color: #64748b;">Teacher mark entry for @Model.ActiveTabSemester. Faculty cannot alter student identity or registration.</small>
+                        <button type="submit" class="t-btn t-btn-primary">
+                            💾 Save @Model.ActiveTabSemester Marks
+                        </button>
+                    </div>
+                }
+            </form>
+
+            <!-- Semester Summary -->
+            <div class="t-card" style="margin-top: 1.25rem;">
+                <div class="t-card-header">
+                    <h3 class="t-card-title">Academic Results for @Model.ActiveTabSemester</h3>
+                </div>
+                <div style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <div>Total Credits: <strong>@(Model.CurrentSemesterResult?.TotalCredits ?? 0) Cr</strong></div>
+                    <div>Percentage: <strong>@(Model.CurrentSemesterResult?.Percentage.ToString("0.00") ?? "0.00")%</strong></div>
+                    <div>SGPA: <strong style="color: #1d4ed8; font-size: 1.15rem;">@(Model.CurrentSemesterResult?.SGPA?.ToString("0.00") ?? "--")</strong></div>
+                    <div>Status: <strong style="color: @(Model.CurrentSemesterResult?.ResultStatus == "PASS" ? "#059669" : "#dc2626");">@(Model.CurrentSemesterResult?.ResultStatus ?? "--")</strong></div>
+                    <div>Overall CGPA: <strong style="color: #1e3a8a; font-size: 1.15rem;">@(Model.OverallAcademicResult?.CGPA?.ToString("0.00") ?? "--")</strong></div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- TEACHER STUDENT FILTER & DIRECTORY -->
+        <div class="t-card" style="margin-bottom: 1.25rem;">
+            <div class="t-card-header">
+                <h3 class="t-card-title">Select Students to Evaluate</h3>
+            </div>
+            <form method="get" style="padding: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 1rem; align-items: flex-end;">
+                <div class="t-form-group">
+                    <label>Course / Program</label>
+                    <select name="SelectedCourse" class="t-form-control">
+                        @foreach (var c in Model.AllowedCourses)
+                        {
+                            <!option value="@c" @(Model.SelectedCourse == c ? "selected" : "")>@c</!option>
+                        }
+                    </select>
+                </div>
+
+                <div class="t-form-group">
+                    <label>Admission Year</label>
+                    <select name="SelectedAdmissionYear" class="t-form-control">
+                        <option value="">All Admission Years</option>
+                        @foreach (var yr in CollegeManagementSystem.Pages.TeacherPortal.MarksTeacher.IndexModel.AdmissionYears)
+                        {
+                            <!option value="@yr" @(Model.SelectedAdmissionYear == yr ? "selected" : "")>@yr</!option>
+                        }
+                    </select>
+                </div>
+
+                <div class="t-form-group">
+                    <label>Semester</label>
+                    <select name="SelectedSemester" class="t-form-control">
+                        <!option value="All" @(Model.SelectedSemester == "All" ? "selected" : "")>All Semesters</!option>
+                        @foreach (var sem in CollegeManagementSystem.Pages.TeacherPortal.MarksTeacher.IndexModel.SemesterList)
+                        {
+                            <!option value="@sem" @(Model.SelectedSemester == sem ? "selected" : "")>@sem</!option>
+                        }
+                    </select>
+                </div>
+
+                <div class="t-form-group">
+                    <label>Search Student</label>
+                    <input type="text" name="SearchTerm" class="t-form-control" placeholder="Name or ID..." value="@Model.SearchTerm" />
+                </div>
+
+                <div>
+                    <button type="submit" class="t-btn t-btn-primary">
+                        🔍 Load Students
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="t-card">
+            <div class="t-card-header">
+                <h3 class="t-card-title">Department Students (@Model.StudentsList.Count)</h3>
+            </div>
+
+            @if (Model.StudentsList.Count == 0)
+            {
+                <div style="padding: 2.5rem; text-align: center; color: #64748b;">
+                    <h4>No students found matching your criteria.</h4>
+                </div>
+            }
+            else
+            {
+                <div class="t-table-responsive">
+                    <table class="t-table">
+                        <thead>
+                            <tr>
+                                <th>Enrollment No</th>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th style="text-align: center;">Admission Year</th>
+                                <th style="text-align: center;">Current Sem</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var stu in Model.StudentsList)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge-code">@stu.StudentId</span>
+                                    </td>
+                                    <td>
+                                        <a href="/Teacher/Marks?selectedStudentId=@stu.StudentId&activeTabSemester=@Uri.EscapeDataString(stu.Semester)" style="color: #0f2d59; font-weight: 700; text-decoration: none;">
+                                            @stu.FullName
+                                        </a>
+                                    </td>
+                                    <td>@stu.Course</td>
+                                    <td style="text-align: center;">@stu.AdmissionYear</td>
+                                    <td style="text-align: center;">@stu.Semester</td>
+                                    <td style="text-align: center;">
+                                        <a href="/Teacher/Marks?selectedStudentId=@stu.StudentId&activeTabSemester=@Uri.EscapeDataString(stu.Semester)" class="t-btn t-btn-primary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;">
+                                            ✏️ Enter / Edit Marks
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function validateTeacherMarks() {
+            const inputs = document.querySelectorAll('.t-marks-in');
+            for (let i = 0; i < inputs.length; i++) {
+                const inp = inputs[i];
+                const comp = inp.getAttribute('data-comp');
+                const max = parseFloat(inp.getAttribute('data-max'));
+                const val = parseFloat(inp.value);
+
+                if (isNaN(val) || val < 0) {
+                    alert(comp + ' marks cannot be negative.');
+                    inp.focus();
+                    return false;
+                }
+
+                if (comp.toLowerCase() === 'internal') {
+                    if (val > 30) {
+                        alert('Internal assessment marks cannot exceed 30. Entered: ' + val);
+                        inp.focus();
+                        return false;
+                    }
+                } else {
+                    if (val > max) {
+                        alert(comp + ' marks (' + val + ') cannot exceed maximum marks (' + max + ').');
+                        inp.focus();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    </script>
+}

@@ -1,0 +1,126 @@
+@page "/Student/Attendance"
+@model CollegeManagementSystem.Pages.StudentPortal.Attendance.IndexModel
+@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "My Attendance";
+}
+
+<div class="student-container">
+    <!-- STUDENT PROFILE HEADER -->
+    <div class="s-profile-header-card">
+        <div class="s-header-info">
+            <div class="s-avatar-large">👨‍🎓</div>
+            <div class="s-info-details">
+                <h2 class="s-full-name">@Model.CurrentStudent?.FullName</h2>
+                <div class="s-meta-row">
+                    <span class="s-meta-item">Enrollment No: <strong>@Model.CurrentStudent?.StudentId</strong></span>
+                    <span class="s-meta-item">Course: <strong>@Model.CurrentStudent?.Course</strong></span>
+                    <span class="s-meta-item">Semester: <strong>@Model.CurrentStudent?.Semester</strong></span>
+                    <span class="s-meta-item">Department: <strong>@Model.CurrentStudent?.Department</strong></span>
+                </div>
+            </div>
+        </div>
+        <div class="s-status-badge">
+            <span>Status: <strong>@Model.CurrentStudent?.Status</strong></span>
+        </div>
+    </div>
+
+    <!-- SUMMARY KPI CARDS -->
+    <div class="s-kpi-grid">
+        <div class="s-kpi-card kpi-navy">
+            <span class="s-kpi-icon">📚</span>
+            <div class="s-kpi-body">
+                <span class="s-kpi-val">@Model.TotalClasses</span>
+                <span class="s-kpi-label">Total Classes</span>
+            </div>
+        </div>
+
+        <div class="s-kpi-card kpi-green">
+            <span class="s-kpi-icon">✅</span>
+            <div class="s-kpi-body">
+                <span class="s-kpi-val">@Model.PresentCount</span>
+                <span class="s-kpi-label">Classes Attended (Present)</span>
+            </div>
+        </div>
+
+        <div class="s-kpi-card kpi-red">
+            <span class="s-kpi-icon">❌</span>
+            <div class="s-kpi-body">
+                <span class="s-kpi-val">@Model.AbsentCount</span>
+                <span class="s-kpi-label">Classes Missed (Absent)</span>
+            </div>
+        </div>
+
+        <div class="s-kpi-card kpi-gold">
+            <span class="s-kpi-icon">📊</span>
+            <div class="s-kpi-body">
+                <span class="s-kpi-val">@Model.AttendancePercentage%</span>
+                <span class="s-kpi-label">Attendance Percentage</span>
+            </div>
+            <div class="s-kpi-progress">
+                <div class="s-progress-fill" style="width: @Model.AttendancePercentage%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE HISTORY TABLE -->
+    <div class="s-card">
+        <div class="s-card-header">
+            <div>
+                <h3 class="s-card-title">My Class Attendance History</h3>
+                <p class="s-card-sub">Daily class attendance records sorted latest date first.</p>
+            </div>
+            <span class="s-record-count">@Model.AttendanceRecords.Count Recorded Classes</span>
+        </div>
+
+        @if (Model.AttendanceRecords.Count == 0)
+        {
+            <div class="s-empty-box">
+                <span class="s-empty-icon">📅</span>
+                <h4>No Attendance Records Yet</h4>
+                <p>No class attendance has been recorded for your enrollment number yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="s-table-responsive">
+                <table class="s-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th style="width: 140px;">Date</th>
+                            <th>Subject / Course</th>
+                            <th style="width: 140px;">Semester</th>
+                            <th style="width: 120px; text-align: center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.AttendanceRecords.Count; i++)
+                        {
+                            var rec = Model.AttendanceRecords[i];
+                            <tr>
+                                <td class="s-col-idx">@(i + 1)</td>
+                                <td>
+                                    <strong class="s-date-text">@rec.Date.ToString("dd/MM/yyyy")</strong>
+                                    <span class="s-day-name">(@rec.Date.ToString("ddd"))</span>
+                                </td>
+                                <td>@rec.Course</td>
+                                <td>@rec.Semester</td>
+                                <td style="text-align: center;">
+                                    @if (rec.Status.Equals("Present", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="s-badge-present">Present</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="s-badge-absent">Absent</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

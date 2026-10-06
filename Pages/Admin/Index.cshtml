@@ -1,173 +1,180 @@
 @page "/Admin"
 @model CollegeManagementSystem.Pages.Admin.IndexModel
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+    ViewData["HeaderTitle"] = "Admin Overview Dashboard";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
-}
+<div class="admin-dashboard-wrapper">
+    <!-- Top Action Buttons -->
+    <div class="admin-actions-row">
+        <a href="/Admin/Students?openAdd=true" class="btn-admin-action primary">
+            <span>➕</span> Add New Student
+        </a>
+        <a href="/Admin/Students" class="btn-admin-action secondary">
+            <span>🎓</span> View Student List
+        </a>
+        <a href="/Admin/Registrations" class="btn-admin-action secondary">
+            <span>📝</span> Pending Registrations (@Model.PendingRegistrationsCount)
+        </a>
+        <a href="/Admin/Courses" class="btn-admin-action secondary">
+            <span>🔬</span> Science Courses (@Model.TotalCourses)
+        </a>
+    </div>
 
-<div class="admin-wrapper">
-    <!-- Top Admin Header -->
-    <section class="admin-top-bar">
-        <div class="container admin-nav-flex">
-            <div class="admin-brand-info">
-                <span class="admin-badge">ADMIN PORTAL</span>
-                <h1 class="admin-title">Institutional Management Dashboard</h1>
-            </div>
-            <div class="admin-quick-links">
-                <a href="/Admin/Registrations" class="admin-nav-item">Registrations (@Model.NewRegistrationsCount New)</a>
-                <a href="/Admin/Inquiries" class="admin-nav-item">Inquiries (@Model.NewInquiriesCount New)</a>
-                <a href="/Admin/Courses" class="admin-nav-item">Courses</a>
-                <a href="/login" class="admin-nav-item admin-logout">Logout</a>
-            </div>
-        </div>
-    </section>
-
-    <div class="container admin-main-body">
-        <!-- 1. Stats Counter Cards -->
-        <div class="admin-stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon-wrap bg-blue">📝</div>
-                <div class="stat-content">
-                    <span class="stat-label">Total Registrations</span>
-                    <strong class="stat-number">@Model.TotalRegistrations</strong>
-                    <span class="stat-sub">@Model.NewRegistrationsCount awaiting review</span>
-                </div>
-                <a href="/Admin/Registrations" class="stat-link">View All &rarr;</a>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon-wrap bg-amber">📬</div>
-                <div class="stat-content">
-                    <span class="stat-label">Inquiries &amp; Messages</span>
-                    <strong class="stat-number">@Model.TotalInquiries</strong>
-                    <span class="stat-sub">@Model.NewInquiriesCount unread / new</span>
-                </div>
-                <a href="/Admin/Inquiries" class="stat-link">View Inbox &rarr;</a>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon-wrap bg-teal">🔬</div>
-                <div class="stat-content">
-                    <span class="stat-label">Active Science Programs</span>
-                    <strong class="stat-number">@Model.TotalCourses</strong>
-                    <span class="stat-sub">Undergraduate B.Sc. disciplines</span>
-                </div>
-                <a href="/Admin/Courses" class="stat-link">Manage &rarr;</a>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon-wrap bg-purple">🏛️</div>
-                <div class="stat-content">
-                    <span class="stat-label">Institute Identity</span>
-                    <strong class="stat-number" style="font-size: 1.1rem; line-height: 1.3;">Shree Sarswati Vishv Vidyalay</strong>
-                    <span class="stat-sub">Institute of Science, Bhavnagar</span>
-                </div>
+    <!-- 1. The 6 Required Summary Metric Cards -->
+    <div class="admin-metrics-grid">
+        <!-- 1. Total Students -->
+        <div class="metric-card accent-navy">
+            <div class="metric-icon-box">🎓</div>
+            <div class="metric-content">
+                <span class="metric-label">Total Students</span>
+                <strong class="metric-val">@Model.TotalStudents</strong>
+                <span class="metric-sub">Enrolled scholars</span>
             </div>
         </div>
 
-        <!-- 2. Dual Recent Tables -->
-        <div class="admin-two-tables-grid">
-            <!-- Recent Registrations -->
-            <div class="admin-card-panel">
-                <div class="panel-header">
-                    <div>
-                        <h2 class="panel-title">Recent Course Registrations</h2>
-                        <p class="panel-desc">Students registered via the public college website.</p>
-                    </div>
-                    <a href="/Admin/Registrations" class="btn btn-sm btn-secondary">View All</a>
-                </div>
-
-                @if (!Model.RecentRegistrations.Any())
-                {
-                    <div class="empty-state-card">
-                        <p>No student registrations submitted yet.</p>
-                        <a href="/Registration" class="btn btn-sm btn-teal">Test Public Registration Form &rarr;</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Reg ID</th>
-                                    <th>Applicant Name</th>
-                                    <th>Course</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var reg in Model.RecentRegistrations)
-                                {
-                                    <tr>
-                                        <td><strong>@reg.RegistrationId</strong></td>
-                                        <td>@reg.FullName</td>
-                                        <td>@reg.SelectedCourse</td>
-                                        <td>@reg.RegistrationDate.ToString("dd MMM yyyy")</td>
-                                        <td>
-                                            <span class="status-pill status-@reg.Status.ToLower().Replace(" ", "-")">@reg.Status</span>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+        <!-- 2. Active Students -->
+        <div class="metric-card accent-teal">
+            <div class="metric-icon-box">✅</div>
+            <div class="metric-content">
+                <span class="metric-label">Active Students</span>
+                <strong class="metric-val">@Model.ActiveStudentsCount</strong>
+                <span class="metric-sub">In good standing</span>
             </div>
+        </div>
 
-            <!-- Recent Inquiries -->
-            <div class="admin-card-panel">
-                <div class="panel-header">
-                    <div>
-                        <h2 class="panel-title">Recent Inquiries &amp; Messages</h2>
-                        <p class="panel-desc">Messages submitted to Admin from the Contact page.</p>
-                    </div>
-                    <a href="/Admin/Inquiries" class="btn btn-sm btn-secondary">View All</a>
-                </div>
-
-                @if (!Model.RecentInquiries.Any())
-                {
-                    <div class="empty-state-card">
-                        <p>No inquiries or messages received yet.</p>
-                        <a href="/Contact" class="btn btn-sm btn-teal">Test Public Inquiry Form &rarr;</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Inquiry ID</th>
-                                    <th>Sender</th>
-                                    <th>Type</th>
-                                    <th>Subject</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var inq in Model.RecentInquiries)
-                                {
-                                    <tr>
-                                        <td><strong>#INQ-@inq.InquiryId.ToString("D4")</strong></td>
-                                        <td>@inq.Name</td>
-                                        <td><span class="type-badge">@inq.InquiryType</span></td>
-                                        <td>@inq.Subject</td>
-                                        <td>
-                                            <span class="status-pill status-@inq.Status.ToLower().Replace(" ", "-")">@inq.Status</span>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+        <!-- 3. Total Teachers -->
+        <div class="metric-card accent-purple">
+            <div class="metric-icon-box">👨‍🏫</div>
+            <div class="metric-content">
+                <span class="metric-label">Total Teachers</span>
+                <strong class="metric-val">@Model.TotalTeachers</strong>
+                <span class="metric-sub">Faculty educators</span>
             </div>
+        </div>
+
+        <!-- 4. Total Courses -->
+        <div class="metric-card accent-blue">
+            <div class="metric-icon-box">🔬</div>
+            <div class="metric-content">
+                <span class="metric-label">Total Courses</span>
+                <strong class="metric-val">@Model.TotalCourses</strong>
+                <span class="metric-sub">Undergraduate B.Sc.</span>
+            </div>
+        </div>
+
+        <!-- 5. Pending Registrations -->
+        <div class="metric-card accent-gold">
+            <div class="metric-icon-box">📝</div>
+            <div class="metric-content">
+                <span class="metric-label">Pending Registrations</span>
+                <strong class="metric-val">@Model.PendingRegistrationsCount</strong>
+                <span class="metric-sub">Awaiting verification</span>
+            </div>
+        </div>
+
+        <!-- 6. Pending Teacher Leave -->
+        <div class="metric-card">
+            <div class="metric-icon-box">📋</div>
+            <div class="metric-content">
+                <span class="metric-label">Pending Teacher Leave</span>
+                <strong class="metric-val">@Model.PendingTeacherLeaveCount</strong>
+                <span class="metric-sub">Leave requests</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Dual Data Tables -->
+    <div class="admin-dashboard-grid">
+        <!-- Panel 1: Recent Students -->
+        <div class="admin-card-panel">
+            <div class="panel-header-bar">
+                <h3 class="panel-heading">🎓 Recent Students</h3>
+                <a href="/Admin/Students" class="btn-admin-action secondary" style="padding: 4px 10px; font-size: 0.78rem;">View All</a>
+            </div>
+            @if (!Model.RecentStudents.Any())
+            {
+                <div class="empty-state-notice">
+                    <p>No students enrolled yet.</p>
+                    <a href="/Admin/Students?openAdd=true" class="btn-admin-action primary" style="font-size: 0.8rem; margin-top: 8px;">+ Add First Student</a>
+                </div>
+            }
+            else
+            {
+                <div class="panel-table-wrap">
+                    <table class="panel-table">
+                        <thead>
+                            <tr>
+                                <th>Enrollment No</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.RecentStudents)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="/Admin/Students?viewId=@s.StudentId" style="font-weight: 700; color: var(--admin-blue); text-decoration: none;">
+                                            @s.StudentId
+                                        </a>
+                                    </td>
+                                    <td>@s.FullName</td>
+                                    <td>@s.Course</td>
+                                    <td>
+                                        <span class="@(s.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "badge-status-active" : "badge-status-inactive")">
+                                            @s.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Panel 2: Recent Course Registrations -->
+        <div class="admin-card-panel">
+            <div class="panel-header-bar">
+                <h3 class="panel-heading">📝 Public Course Registrations</h3>
+                <a href="/Admin/Registrations" class="btn-admin-action secondary" style="padding: 4px 10px; font-size: 0.78rem;">View All</a>
+            </div>
+            @if (!Model.RecentRegistrations.Any())
+            {
+                <div class="empty-state-notice">
+                    <p>No new course registrations from public website yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="panel-table-wrap">
+                    <table class="panel-table">
+                        <thead>
+                            <tr>
+                                <th>Reg ID</th>
+                                <th>Applicant</th>
+                                <th>Course</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var reg in Model.RecentRegistrations)
+                            {
+                                <tr>
+                                    <td style="font-weight: 700; font-family: monospace;">@reg.RegistrationId</td>
+                                    <td>@reg.FullName</td>
+                                    <td>@reg.SelectedCourse</td>
+                                    <td>@reg.RegistrationDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 </div>

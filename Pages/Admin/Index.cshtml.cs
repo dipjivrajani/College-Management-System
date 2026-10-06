@@ -15,32 +15,41 @@ public class IndexModel : PageModel
         _context = context;
     }
 
-    public int TotalRegistrations { get; set; }
-    public int NewRegistrationsCount { get; set; }
-    public int TotalInquiries { get; set; }
-    public int NewInquiriesCount { get; set; }
+    public int TotalStudents { get; set; }
+    public int ActiveStudentsCount { get; set; }
+    public int TotalTeachers { get; set; }
     public int TotalCourses { get; set; }
+    public int PendingRegistrationsCount { get; set; }
+    public int PendingTeacherLeaveCount { get; set; } = 0; // Coming soon module
 
+    public List<Student> RecentStudents { get; set; } = new();
     public List<CollegeManagementSystem.Models.Registration> RecentRegistrations { get; set; } = new();
-    public List<CollegeManagementSystem.Models.Inquiry> RecentInquiries { get; set; } = new();
+    public List<Inquiry> RecentInquiries { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
-        // Simple session check (accessible for demo/testing or when logged in)
-        TotalRegistrations = await _context.Registrations.CountAsync();
-        NewRegistrationsCount = await _context.Registrations.CountAsync(r => r.Status == "NEW");
+        TotalStudents = await _context.Students.CountAsync();
+        ActiveStudentsCount = await _context.Students.CountAsync(s => s.Status.ToLower() == "active");
 
-        TotalInquiries = await _context.Inquiries.CountAsync();
-        NewInquiriesCount = await _context.Inquiries.CountAsync(i => i.Status == "NEW");
+        TotalTeachers = await _context.Teachers.CountAsync();
+        TotalCourses = await _context.Courses.CountAsync(c => c.IsActive);
 
-        TotalCourses = await _context.Courses.CountAsync();
+        PendingRegistrationsCount = await _context.Registrations.CountAsync(r => r.Status == "NEW");
 
-        // Sensible ordering: Newest first
+        // Load 5 recent students
+        RecentStudents = await _context.Students
+            .OrderByDescending(s => s.AdmissionDate)
+            .ThenBy(s => s.FullName)
+            .Take(5)
+            .ToListAsync();
+
+        // Load 5 recent registrations
         RecentRegistrations = await _context.Registrations
             .OrderByDescending(r => r.RegistrationDate)
             .Take(5)
             .ToListAsync();
 
+        // Load 5 recent inquiries
         RecentInquiries = await _context.Inquiries
             .OrderByDescending(i => i.CreatedDate)
             .Take(5)

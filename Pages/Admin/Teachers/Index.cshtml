@@ -1,0 +1,683 @@
+@page "/Admin/Teachers"
+@model CollegeManagementSystem.Pages.Admin.Teachers.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Teacher Management";
+    ViewData["HeaderTitle"] = "Teacher Directory & Staffing";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-teachers.css" asp-append-version="true" />
+}
+
+<div class="teachers-page-container">
+    <!-- 1. Header & Add Button -->
+    <div class="teachers-header-row">
+        <div class="teachers-header-title">
+            <h1>Faculty &amp; Teacher Management</h1>
+            <p>Manage academic appointments, automatic faculty ID generation, and departmental staffing.</p>
+        </div>
+        <a href="/Admin/Teachers?openAdd=true" class="btn-add-teacher">
+            <span>➕</span> Add New Teacher
+        </a>
+    </div>
+
+    <!-- 2. Generated Credentials Banner -->
+    @if (!string.IsNullOrEmpty(Model.CreatedCredentials))
+    {
+        <div class="credentials-banner">
+            <span class="credentials-icon">🔑</span>
+            <div class="credentials-content">
+                <strong>Faculty Account Created Successfully! Please record these initial credentials:</strong>
+                <span class="credentials-details">@Model.CreatedCredentials</span>
+            </div>
+        </div>
+    }
+
+    <!-- 3. Status Feedback Alert -->
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-feedback">
+            @Model.StatusMessage
+        </div>
+    }
+
+    <!-- 4. Department-Wise Quick Overview Cards / Section -->
+    <div class="dept-overview-section">
+        <div class="dept-section-head">
+            <span class="dept-section-badge">ACADEMIC DEPARTMENTS</span>
+            <h2 class="dept-section-title">Department-Wise Faculty Roster</h2>
+            <p class="dept-section-sub">Select any discipline below to view faculty members, designations, and specializations by department.</p>
+        </div>
+        <div class="dept-cards-grid">
+            <a href="/Admin/Teachers" class="dept-card @(string.IsNullOrEmpty(Model.DeptFilter) || Model.DeptFilter == "All" ? "active" : "")">
+                <span class="dept-card-icon">🏛️</span>
+                <div class="dept-card-info">
+                    <span class="dept-card-name">All Disciplines</span>
+                    <span class="dept-card-count">@Model.TotalTeachers Faculty</span>
+                </div>
+            </a>
+            @foreach (var dept in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDepartments)
+            {
+                var count = Model.DeptCounts.ContainsKey(dept) ? Model.DeptCounts[dept] : 0;
+                var isSelected = Model.DeptFilter != null && Model.DeptFilter.Equals(dept, StringComparison.OrdinalIgnoreCase);
+                string icon = dept switch
+                {
+                    "Botany" => "🌿",
+                    "Chemistry" => "🧪",
+                    "Computer Science" => "💻",
+                    "Forensic Science" => "🔍",
+                    "Microbiology" => "🧫",
+                    "Physics" => "⚛️",
+                    "Zoology" => "🦁",
+                    _ => "🔬"
+                };
+
+                <a href="/Admin/Teachers?deptTab=@dept" class="dept-card @(isSelected ? "active" : "")">
+                    <span class="dept-card-icon">@icon</span>
+                    <div class="dept-card-info">
+                        <span class="dept-card-name">@dept</span>
+                        <span class="dept-card-count">@count @(count == 1 ? "Teacher" : "Teachers")</span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- 5. Search & Filter Bar Card -->
+    <div class="filter-card-bar">
+        <form method="get" class="filter-form-flex">
+            <!-- Search Query Input -->
+            <div class="search-input-wrap">
+                <span class="search-icon-symbol">🔍</span>
+                <input type="text" name="search" value="@Model.SearchTerm" class="search-input" placeholder="Search by name, teacher ID, department, designation, or email..." />
+            </div>
+
+            <!-- Department Filter -->
+            <select name="deptFilter" class="filter-select">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.DeptFilter) || Model.DeptFilter == "All")">All Departments</option>
+                @foreach (var dept in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDepartments)
+                {
+                    <option value="@dept" selected="@(Model.DeptFilter?.Equals(dept, StringComparison.OrdinalIgnoreCase) == true)">@dept</option>
+                }
+            </select>
+
+            <!-- Designation Filter -->
+            <select name="desigFilter" class="filter-select">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.DesigFilter) || Model.DesigFilter == "All")">All Designations</option>
+                @foreach (var desig in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDesignations)
+                {
+                    <option value="@desig" selected="@(Model.DesigFilter?.Equals(desig, StringComparison.OrdinalIgnoreCase) == true)">@desig</option>
+                }
+            </select>
+
+            <!-- Status Filter -->
+            <select name="statusFilter" class="filter-select">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.StatusFilter) || Model.StatusFilter == "All")">All Statuses</option>
+                <option value="Active" selected="@(Model.StatusFilter?.ToLower() == "active")">Active Only</option>
+                <option value="Inactive" selected="@(Model.StatusFilter?.ToLower() == "inactive")">Inactive Only</option>
+            </select>
+
+            <button type="submit" class="btn-filter-submit">Filter</button>
+            @if (!string.IsNullOrEmpty(Model.SearchTerm) || (!string.IsNullOrEmpty(Model.DeptFilter) && Model.DeptFilter != "All") || (!string.IsNullOrEmpty(Model.DesigFilter) && Model.DesigFilter != "All") || (!string.IsNullOrEmpty(Model.StatusFilter) && Model.StatusFilter != "All"))
+            {
+                <a href="/Admin/Teachers" class="btn-filter-clear">Clear Filters</a>
+            }
+
+            <!-- Summary Count Pills -->
+            <div class="filter-pills-summary">
+                <span class="count-pill">Total: @Model.TotalTeachers</span>
+                <span class="count-pill active">Active: @Model.ActiveTeachers</span>
+                <span class="count-pill">Inactive: @Model.InactiveTeachers</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- 6. Teachers Table Card -->
+    <div class="teachers-table-card">
+        @if (!Model.Teachers.Any())
+        {
+            <div class="empty-state-notice">
+                <p>No faculty members match your selected search or filter criteria.</p>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.DeptFilter))
+                {
+                    <a href="/Admin/Teachers" class="btn-modal-cancel" style="margin-top: 10px;">View All Teachers</a>
+                }
+                else
+                {
+                    <a href="/Admin/Teachers?openAdd=true" class="btn-modal-save" style="margin-top: 10px;">+ Add New Teacher</a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="panel-table-wrap">
+                <table class="teachers-table">
+                    <thead>
+                        <tr>
+                            <th class="col-tid">Teacher ID</th>
+                            <th class="col-tname">Teacher Name</th>
+                            <th class="col-tdept">Department</th>
+                            <th class="col-tdesig">Designation</th>
+                            <th class="col-tqual">Qualification</th>
+                            <th class="col-tmobile">Mobile</th>
+                            <th class="col-temail">Email</th>
+                            <th class="col-tjoining">Joining Date</th>
+                            <th class="col-tstatus">Status</th>
+                            <th class="col-tactions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.Teachers)
+                        {
+                            <tr>
+                                <!-- Teacher ID (Clickable) -->
+                                <td class="col-tid">
+                                    <a href="/Admin/Teachers?viewId=@t.TeacherId" class="teacher-id-link" title="Click to view full profile">
+                                        @t.TeacherId
+                                    </a>
+                                </td>
+
+                                <!-- Teacher Name with Avatar (Clickable) -->
+                                <td class="col-tname">
+                                    <div class="teacher-name-cell">
+                                        <div class="teacher-avatar-small">
+                                            @(t.FullName.Length > 0 ? t.FullName.Substring(0, 1).ToUpper() : "T")
+                                        </div>
+                                        <a href="/Admin/Teachers?viewId=@t.TeacherId" class="teacher-name-text" title="View Faculty Profile">
+                                            @t.FullName
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <!-- Department -->
+                                <td class="col-tdept">
+                                    <span class="dept-text">@t.Department</span>
+                                </td>
+
+                                <!-- Designation -->
+                                <td class="col-tdesig">
+                                    <span class="desig-pill">@t.Designation</span>
+                                </td>
+
+                                <!-- Qualification & Specialization -->
+                                <td class="col-tqual">
+                                    <div class="qual-cell-wrap" title="@(string.IsNullOrEmpty(t.Specialization) ? t.Qualification : t.Qualification + " | Spec: " + t.Specialization)">
+                                        <span class="qual-text">@(string.IsNullOrEmpty(t.Qualification) ? "—" : t.Qualification)</span>
+                                        @if (!string.IsNullOrEmpty(t.Specialization))
+                                        {
+                                            <span class="spec-sub">@t.Specialization</span>
+                                        }
+                                    </div>
+                                </td>
+
+                                <!-- Mobile -->
+                                <td class="col-tmobile">
+                                    <span class="teacher-mobile-text">@(string.IsNullOrEmpty(t.Mobile) ? "—" : t.Mobile)</span>
+                                </td>
+
+                                <!-- Email -->
+                                <td class="col-temail">
+                                    <span class="teacher-email-text" title="@t.Email">@t.Email</span>
+                                </td>
+
+                                <!-- Joining Date -->
+                                <td class="col-tjoining">
+                                    <span class="joining-text">@(t.JoiningDate.HasValue ? t.JoiningDate.Value.ToString("dd MMM yyyy") : "—")</span>
+                                </td>
+
+                                <!-- Status Badge -->
+                                <td class="col-tstatus">
+                                    <span class="@(t.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "badge-status-active" : "badge-status-inactive")">
+                                        @t.Status
+                                    </span>
+                                </td>
+
+                                <!-- Action Buttons -->
+                                <td class="col-tactions">
+                                    <div class="action-buttons-group">
+                                        <!-- View Profile -->
+                                        <a href="/Admin/Teachers?viewId=@t.TeacherId" class="action-btn view" title="View Teacher Profile">
+                                            <span>👁️</span> View
+                                        </a>
+
+                                        <!-- Edit Details -->
+                                        <a href="/Admin/Teachers?editId=@t.TeacherId" class="action-btn edit" title="Edit Teacher Details">
+                                            <span>✏️</span> Edit
+                                        </a>
+
+                                        <!-- Password Reset -->
+                                        <a href="/Admin/Teachers?passwordId=@t.TeacherId" class="action-btn pwd" title="Change Faculty Password">
+                                            <span>🔑</span> Pwd
+                                        </a>
+
+                                        <!-- Activate/Deactivate Toggle -->
+                                        <form method="post" asp-page-handler="ToggleStatus" asp-route-id="@t.TeacherId" style="display:inline; margin:0;">
+                                            <button type="submit" class="action-btn toggle @(t.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "active-state" : "inactive-state")" title="Click to @(t.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "Deactivate" : "Activate")">
+                                                <span>@(t.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "⏸️ Deactivate" : "▶️ Activate")</span>
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete Confirmation -->
+                                        <a href="/Admin/Teachers?deleteId=@t.TeacherId" class="action-btn delete" title="Delete Teacher">
+                                            <span>🗑️</span> Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ========================================================
+     MODAL 1: ADD NEW TEACHER
+     ======================================================== -->
+@if (Model.ShowAddModal)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>➕ Add New Faculty Member</h3>
+                <a href="/Admin/Teachers" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-body">
+                    <p style="font-size: 0.82rem; color: var(--admin-muted); margin-top:0; margin-bottom: 14px;">
+                        Teacher ID and initial secure credentials will be generated automatically upon registration.
+                    </p>
+                    <div class="modal-form-grid">
+                        <!-- Full Name -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Full Name <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="NewTeacher.FullName" class="modal-input" placeholder="e.g. Dr. Rajesh Varma" required />
+                            <span asp-validation-for="NewTeacher.FullName" style="font-size: 0.76rem; color:#dc2626;"></span>
+                        </div>
+
+                        <!-- Department (Alphabetically Sorted) -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Department <span style="color:#ef4444;">*</span></label>
+                            <select asp-for="NewTeacher.Department" class="modal-input" required>
+                                @foreach (var d in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDepartments)
+                                {
+                                    <option value="@d">@d</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Designation -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Designation <span style="color:#ef4444;">*</span></label>
+                            <select asp-for="NewTeacher.Designation" class="modal-input" required>
+                                @foreach (var desig in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDesignations)
+                                {
+                                    <option value="@desig">@desig</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Qualification -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Qualification</label>
+                            <input asp-for="NewTeacher.Qualification" class="modal-input" placeholder="e.g. Ph.D. in Botany, NET" />
+                        </div>
+
+                        <!-- Specialization -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Specialization</label>
+                            <input asp-for="NewTeacher.Specialization" class="modal-input" placeholder="e.g. Plant Taxonomy, Organic Synthesis" />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Email Address <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="NewTeacher.Email" type="email" class="modal-input" placeholder="teacher@ssvv.edu.in" required />
+                            <span asp-validation-for="NewTeacher.Email" style="font-size: 0.76rem; color:#dc2626;"></span>
+                        </div>
+
+                        <!-- Mobile Number -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Mobile Number</label>
+                            <input asp-for="NewTeacher.Mobile" class="modal-input" placeholder="10-digit mobile" maxlength="15" />
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Date of Birth</label>
+                            <input asp-for="NewTeacher.DateOfBirth" type="date" class="modal-input" />
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Gender</label>
+                            <select asp-for="NewTeacher.Gender" class="modal-input">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Joining Date -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Joining Date</label>
+                            <input asp-for="NewTeacher.JoiningDate" type="date" class="modal-input" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">City</label>
+                            <input asp-for="NewTeacher.City" class="modal-input" value="Bhavnagar" />
+                        </div>
+
+                        <!-- Employment Status -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Employment Status</label>
+                            <select asp-for="NewTeacher.Status" class="modal-input">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Residential Address</label>
+                            <input asp-for="NewTeacher.Address" class="modal-input" placeholder="Street address, residential locality" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Teachers" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-save">Create Teacher &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 2: VIEW TEACHER PROFILE
+     ======================================================== -->
+@if (Model.ViewTeacher != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>👨‍🏫 Faculty Academic Profile</h3>
+                <a href="/Admin/Teachers" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <div class="modal-body">
+                <div class="profile-modal-grid">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar-large">👨‍🏫</div>
+                        <span class="profile-id-tag">@Model.ViewTeacher.TeacherId</span>
+                        <span class="profile-status-pill @(Model.ViewTeacher.Status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "badge-status-active" : "badge-status-inactive")">
+                            @Model.ViewTeacher.Status
+                        </span>
+                    </div>
+
+                    <div class="profile-details-list">
+                        <div class="profile-item">
+                            <span class="profile-label">Full Name</span>
+                            <span class="profile-val">@Model.ViewTeacher.FullName</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Teacher ID</span>
+                            <span class="profile-val" style="font-family: monospace;">@Model.ViewTeacher.TeacherId</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Department</span>
+                            <span class="profile-val">@Model.ViewTeacher.Department</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Designation</span>
+                            <span class="profile-val">@Model.ViewTeacher.Designation</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Qualification</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewTeacher.Qualification) ? "—" : Model.ViewTeacher.Qualification)</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Specialization</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewTeacher.Specialization) ? "—" : Model.ViewTeacher.Specialization)</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Joining Date</span>
+                            <span class="profile-val">@(Model.ViewTeacher.JoiningDate.HasValue ? Model.ViewTeacher.JoiningDate.Value.ToString("dd MMM yyyy") : "—")</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Date of Birth</span>
+                            <span class="profile-val">@(Model.ViewTeacher.DateOfBirth.HasValue ? Model.ViewTeacher.DateOfBirth.Value.ToString("dd MMM yyyy") : "—")</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Gender</span>
+                            <span class="profile-val">@Model.ViewTeacher.Gender</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Mobile</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewTeacher.Mobile) ? "—" : Model.ViewTeacher.Mobile)</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Email</span>
+                            <span class="profile-val">@Model.ViewTeacher.Email</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Employment Status</span>
+                            <span class="profile-val">@Model.ViewTeacher.Status</span>
+                        </div>
+                        <div class="profile-item" style="grid-column: span 2;">
+                            <span class="profile-label">Address</span>
+                            <span class="profile-val">@(string.IsNullOrEmpty(Model.ViewTeacher.Address) ? Model.ViewTeacher.City : Model.ViewTeacher.Address + ", " + Model.ViewTeacher.City)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/Admin/Teachers?editId=@Model.ViewTeacher.TeacherId" class="btn-modal-save">Edit Profile</a>
+                <a href="/Admin/Teachers?passwordId=@Model.ViewTeacher.TeacherId" class="btn-modal-cancel" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">Change Password</a>
+                <a href="/Admin/Teachers" class="btn-modal-cancel">Close</a>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 3: EDIT TEACHER
+     ======================================================== -->
+@if (Model.EditTeacher != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>✏️ Edit Faculty Member</h3>
+                <a href="/Admin/Teachers" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="Edit">
+                <input type="hidden" asp-for="EditInput.TeacherId" />
+                <div class="modal-body">
+                    <div class="modal-form-grid">
+                        <!-- Teacher ID (Readonly) -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Teacher ID (Permanent)</label>
+                            <input type="text" class="modal-input modal-input-readonly" value="@Model.EditInput.TeacherId" readonly />
+                        </div>
+
+                        <!-- Employment Status -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Employment Status</label>
+                            <select asp-for="EditInput.Status" class="modal-input">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Full Name <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="EditInput.FullName" class="modal-input" required />
+                        </div>
+
+                        <!-- Department -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Department <span style="color:#ef4444;">*</span></label>
+                            <select asp-for="EditInput.Department" class="modal-input" required>
+                                @foreach (var d in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDepartments)
+                                {
+                                    <option value="@d">@d</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Designation -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Designation <span style="color:#ef4444;">*</span></label>
+                            <select asp-for="EditInput.Designation" class="modal-input" required>
+                                @foreach (var desig in CollegeManagementSystem.Pages.Admin.Teachers.IndexModel.StandardDesignations)
+                                {
+                                    <option value="@desig">@desig</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Qualification -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Qualification</label>
+                            <input asp-for="EditInput.Qualification" class="modal-input" />
+                        </div>
+
+                        <!-- Specialization -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Specialization</label>
+                            <input asp-for="EditInput.Specialization" class="modal-input" />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Email Address <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="EditInput.Email" type="email" class="modal-input" required />
+                        </div>
+
+                        <!-- Mobile Number -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Mobile Number</label>
+                            <input asp-for="EditInput.Mobile" class="modal-input" maxlength="15" />
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Date of Birth</label>
+                            <input asp-for="EditInput.DateOfBirth" type="date" class="modal-input" />
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Gender</label>
+                            <select asp-for="EditInput.Gender" class="modal-input">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Joining Date -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">Joining Date</label>
+                            <input asp-for="EditInput.JoiningDate" type="date" class="modal-input" />
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group-modal">
+                            <label class="modal-label">City</label>
+                            <input asp-for="EditInput.City" class="modal-input" />
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-group-modal full-width">
+                            <label class="modal-label">Residential Address</label>
+                            <input asp-for="EditInput.Address" class="modal-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Teachers" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 4: CHANGE PASSWORD
+     ======================================================== -->
+@if (Model.PasswordTeacher != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h3>🔑 Reset Faculty Password</h3>
+                <a href="/Admin/Teachers" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="ChangePassword">
+                <input type="hidden" asp-for="PasswordInput.TeacherId" />
+                <div class="modal-body">
+                    <p style="font-size: 0.84rem; color: var(--admin-muted); margin-bottom: 12px;">
+                        Reset login credentials for faculty member <strong>@Model.PasswordInput.TeacherName</strong> (<code>@Model.PasswordInput.TeacherId</code>). Passwords are encrypted before saving.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="form-group-modal">
+                            <label class="modal-label">New Password <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="PasswordInput.NewPassword" type="password" class="modal-input" placeholder="Enter new password" required minlength="4" />
+                        </div>
+                        <div class="form-group-modal">
+                            <label class="modal-label">Confirm New Password <span style="color:#ef4444;">*</span></label>
+                            <input asp-for="PasswordInput.ConfirmPassword" type="password" class="modal-input" placeholder="Repeat new password" required minlength="4" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Teachers" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-save">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- ========================================================
+     MODAL 5: DELETE CONFIRMATION POPUP
+     ======================================================== -->
+@if (Model.DeleteTeacher != null)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header" style="background-color: #fef2f2; border-bottom-color: #fecaca;">
+                <h3 style="color: #991b1b;">⚠️ Confirm Faculty Deletion</h3>
+                <a href="/Admin/Teachers" class="modal-close-btn" title="Close">&times;</a>
+            </div>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@Model.DeleteTeacher.TeacherId">
+                <div class="modal-body">
+                    <div class="delete-warning-box">
+                        <div class="delete-warning-icon">🗑️</div>
+                        <p style="margin: 0; font-weight: 700; color: #7f1d1d;">Are you sure you want to delete this teacher?</p>
+                        <div class="delete-teacher-highlight">
+                            @Model.DeleteTeacher.FullName<br />
+                            <code style="font-size: 0.9rem; color: #b91c1c;">@Model.DeleteTeacher.TeacherId</code>
+                            <div style="font-size: 0.82rem; color: #7f1d1d; margin-top: 4px;">Department: <strong>@Model.DeleteTeacher.Department</strong></div>
+                        </div>
+                        <p class="delete-info-note">
+                            Note: This action permanently removes the faculty record. If historical academic records or course lectures are linked to this teacher, consider clicking <strong>Cancel</strong> and switching their status to <strong>Inactive</strong> instead.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="/Admin/Teachers" class="btn-modal-cancel">Cancel</a>
+                    <button type="submit" class="btn-modal-delete">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

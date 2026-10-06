@@ -1,0 +1,603 @@
+@page "/Admin/Syllabus"
+@model CollegeManagementSystem.Pages.AdminPortal.SyllabusAdmin.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Syllabus Management";
+    ViewData["HeaderTitle"] = "Academic Syllabus & Versioning";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-syllabus.css" asp-append-version="true" />
+}
+
+<div class="syllabus-admin-container">
+    <!-- Feedback Alerts -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="syllabus-alert alert-success" role="alert">
+            <span class="alert-icon">✓</span>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="syllabus-alert alert-danger" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <!-- Top Header Banner -->
+    <div class="syllabus-header-banner">
+        <div>
+            <h2 class="syllabus-heading">Academic Syllabus Management</h2>
+            <p class="syllabus-subheading">Configure institutional courses, academic year versions, subjects, credits, and evaluation components.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn-secondary-action" onclick="openCloneModal()">
+                <span>🔄</span> Clone to New Year
+            </button>
+            <button type="button" class="btn-primary-action" onclick="openAddSubjectModal()">
+                <span>➕</span> Add Subject
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Bar (PART 7 & 30) -->
+    <div class="syllabus-filter-card">
+        <form method="get" class="syllabus-filter-form">
+            <div class="filter-group">
+                <label for="filterAcademicYear">Academic Year</label>
+                <select id="filterAcademicYear" name="selectedAcademicYear" class="filter-select">
+                    @foreach (var ay in Model.AcademicYearsList)
+                    {
+                        <option value="@ay.YearCode" selected="@(ay.YearCode == Model.SelectedAcademicYear)">@ay.YearName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterCourse">Course / Department</label>
+                <select id="filterCourse" name="selectedCourse" class="filter-select">
+                    @foreach (var c in CollegeManagementSystem.Pages.AdminPortal.SyllabusAdmin.IndexModel.CourseList)
+                    {
+                        <option value="@c" selected="@(c == Model.SelectedCourse)">@c</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterSemester">Semester</label>
+                <select id="filterSemester" name="selectedSemester" class="filter-select">
+                    @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.SyllabusAdmin.IndexModel.SemesterList)
+                    {
+                        <option value="@sem" selected="@(sem == Model.SelectedSemester)">@sem</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterSearch">Search Subject</label>
+                <input type="text" id="filterSearch" name="searchTerm" class="filter-input" placeholder="Subject Name or Code..." value="@Model.SearchTerm" />
+            </div>
+
+            <button type="submit" class="filter-btn-apply">View Syllabus</button>
+        </form>
+    </div>
+
+    <!-- Department-wise Semester Navigation Pills (PART 14) -->
+    <div class="semester-nav-pills">
+        @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.SyllabusAdmin.IndexModel.SemesterList)
+        {
+            <a href="/Admin/Syllabus?selectedAcademicYear=@Model.SelectedAcademicYear&selectedCourse=@Uri.EscapeDataString(Model.SelectedCourse)&selectedSemester=@Uri.EscapeDataString(sem)"
+               class="sem-pill-link @(sem == Model.SelectedSemester ? "active" : "")">
+                @sem
+            </a>
+        }
+    </div>
+
+    <!-- Syllabus Summary Bar (PART 30) -->
+    <div class="syllabus-summary-bar">
+        <div class="summary-stat-box">
+            <span class="summary-stat-label">Academic Program</span>
+            <span class="summary-stat-value">@Model.SelectedCourse</span>
+            <span class="summary-stat-sub">@Model.SelectedAcademicYear • @Model.SelectedSemester</span>
+        </div>
+        <div class="summary-stat-box">
+            <span class="summary-stat-label">Total Subjects</span>
+            <span class="summary-stat-value">@Model.TotalSubjectsCount</span>
+            <span class="summary-stat-sub">Configured in this semester</span>
+        </div>
+        <div class="summary-stat-box">
+            <span class="summary-stat-label">Total Credits</span>
+            <span class="summary-stat-value">@Model.TotalSemesterCredits</span>
+            <span class="summary-stat-sub">Cumulative credit weight</span>
+        </div>
+        <div class="summary-stat-box">
+            <span class="summary-stat-label">Semester Max Marks</span>
+            <span class="summary-stat-value">@Model.TotalSemesterMaxMarks</span>
+            <span class="summary-stat-sub">Aggregate across components</span>
+        </div>
+    </div>
+
+    <!-- Subjects Table -->
+    <div class="syllabus-table-card">
+        <div class="table-card-header">
+            <h3 class="table-card-title">@Model.SelectedCourse — @Model.SelectedSemester (@Model.SelectedAcademicYear)</h3>
+            <span style="font-size: 0.82rem; color: #627d98;">@Model.SubjectsList.Count Subjects</span>
+        </div>
+
+        @if (Model.SubjectsList.Count == 0)
+        {
+            <div class="syllabus-empty-state">
+                <div class="empty-icon">📚</div>
+                <div class="empty-title">No Subjects Configured</div>
+                <div class="empty-desc">
+                    There are no subjects configured for <strong>@Model.SelectedCourse</strong> in <strong>@Model.SelectedSemester</strong> for academic year <strong>@Model.SelectedAcademicYear</strong>.
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
+                    <button type="button" class="btn-primary-action" onclick="openAddSubjectModal()">
+                        <span>➕</span> Add First Subject
+                    </button>
+                    <button type="button" class="btn-secondary-action" onclick="openCloneModal()">
+                        <span>🔄</span> Clone from Another Year
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive-wrapper">
+                <table class="syllabus-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Order</th>
+                            <th>Subject Code</th>
+                            <th>Subject Name</th>
+                            <th>Credits</th>
+                            <th>Evaluation Components</th>
+                            <th>Max Marks</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sub in Model.SubjectsList)
+                        {
+                            decimal subMaxMarks = sub.Components?.Sum(c => c.MaximumMarks) ?? 0;
+                            <tr>
+                                <td style="font-weight: 700; color: #486581;">#@sub.DisplayOrder</td>
+                                <td><span style="font-family: monospace; font-weight: 600; color: #102a43;">@sub.SubjectCode</span></td>
+                                <td style="font-weight: 600; color: #102a43;">@sub.SubjectName</td>
+                                <td><strong>@sub.Credits</strong></td>
+                                <td>
+                                    <div class="component-badges-wrap">
+                                        @if (sub.Components != null && sub.Components.Count > 0)
+                                        {
+                                            @foreach (var c in sub.Components)
+                                            {
+                                                var badgeClass = c.ComponentType.ToLower();
+                                                <span class="comp-badge @badgeClass" title="Pass threshold: @c.PassingMarks">
+                                                    @c.ComponentType: @c.MaximumMarks
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">No components</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td><strong>@subMaxMarks</strong></td>
+                                <td>
+                                    <span class="status-pill @sub.Status.ToLower()">@sub.Status</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons-group" style="justify-content: flex-end;">
+                                        <button type="button" class="btn-action-sm btn-edit-sub"
+                                                onclick="openEditSubjectModal(@sub.SubjectId, '@Html.Raw(sub.SubjectCode)', '@Html.Raw(sub.SubjectName.Replace("'", "\\'"))', @sub.Credits, @sub.DisplayOrder, '@sub.Status')">
+                                            ✏️ Edit
+                                        </button>
+                                        <button type="button" class="btn-action-sm btn-config-comp"
+                                                onclick="openConfigureComponentsModal(@sub.SubjectId, '@Html.Raw(sub.SubjectName.Replace("'", "\\'"))', @System.Text.Json.JsonSerializer.Serialize(sub.Components))">
+                                            ⚙️ Components
+                                        </button>
+                                        <form method="post" asp-page-handler="ToggleStatus" style="display:inline;">
+                                            <input type="hidden" name="subjectId" value="@sub.SubjectId" />
+                                            <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+                                            <input type="hidden" name="course" value="@Model.SelectedCourse" />
+                                            <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+                                            <button type="submit" class="btn-action-sm btn-toggle-sub" title="Toggle Active/Inactive">
+                                                @(sub.Status == "Active" ? "Deactivate" : "Activate")
+                                            </button>
+                                        </form>
+                                        <form method="post" asp-page-handler="DeleteSubject" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete/archive subject @sub.SubjectName? If student marks exist, it will be safely archived.');">
+                                            <input type="hidden" name="subjectId" value="@sub.SubjectId" />
+                                            <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+                                            <input type="hidden" name="course" value="@Model.SelectedCourse" />
+                                            <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+                                            <button type="submit" class="btn-action-sm btn-delete-sub" title="Delete or Archive">
+                                                🗑️
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- 1. ADD SUBJECT MODAL -->
+<div id="addSubjectModal" class="modal-overlay">
+    <div class="modal-box">
+        <form method="post" asp-page-handler="AddSubject">
+            <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+            <input type="hidden" name="course" value="@Model.SelectedCourse" />
+            <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+
+            <div class="modal-box-header">
+                <h4 class="modal-box-title">Add Subject to @Model.SelectedCourse (@Model.SelectedSemester)</h4>
+                <button type="button" class="modal-close-btn" onclick="closeAddSubjectModal()">&times;</button>
+            </div>
+            <div class="modal-box-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group modal-form-full">
+                        <label>Subject Name *</label>
+                        <input type="text" name="subjectName" class="modal-form-input" required placeholder="e.g. Plant Physiology and Metabolism" />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Subject Code (Leave empty to auto-generate)</label>
+                        <input type="text" name="subjectCode" class="modal-form-input" placeholder="e.g. BOT101" />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Credits *</label>
+                        <input type="number" step="0.5" name="credits" class="modal-form-input" value="4.0" required />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Display Order (Position)</label>
+                        <input type="number" name="displayOrder" class="modal-form-input" value="@(Model.SubjectsList.Count + 1)" />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Academic Year</label>
+                        <input type="text" class="modal-form-input" value="@Model.SelectedAcademicYear" readonly style="background:#f1f5f9;" />
+                    </div>
+
+                    <!-- Evaluation Components Section (PART 9, 10, 11, 12) -->
+                    <div class="modal-form-full comp-config-section">
+                        <div class="comp-config-title">Configure Evaluation Components:</div>
+
+                        <div class="comp-config-row">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasInternal" value="true" checked />
+                                <span>Internal Assessment</span>
+                            </label>
+                            <input type="number" step="1" name="internalMax" class="modal-form-input" value="30" placeholder="Max" />
+                            <input type="number" step="1" name="internalPass" class="modal-form-input" value="12" placeholder="Pass" />
+                        </div>
+
+                        <div class="comp-config-row">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasTheory" value="true" checked />
+                                <span>Theory Exam</span>
+                            </label>
+                            <input type="number" step="1" name="theoryMax" class="modal-form-input" value="70" placeholder="Max" />
+                            <input type="number" step="1" name="theoryPass" class="modal-form-input" value="28" placeholder="Pass" />
+                        </div>
+
+                        <div class="comp-config-row">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasPractical" value="true" />
+                                <span>Practical Lab</span>
+                            </label>
+                            <input type="number" step="1" name="practicalMax" class="modal-form-input" value="50" placeholder="Max" />
+                            <input type="number" step="1" name="practicalPass" class="modal-form-input" value="20" placeholder="Pass" />
+                        </div>
+
+                        <div class="comp-config-row">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasProject" value="true" />
+                                <span>Project Work</span>
+                            </label>
+                            <input type="number" step="1" name="projectMax" class="modal-form-input" value="100" placeholder="Max" />
+                            <input type="number" step="1" name="projectPass" class="modal-form-input" value="40" placeholder="Pass" />
+                        </div>
+
+                        <div class="comp-config-row">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasViva" value="true" />
+                                <span>Viva Voce</span>
+                            </label>
+                            <input type="number" step="1" name="vivaMax" class="modal-form-input" value="20" placeholder="Max" />
+                            <input type="number" step="1" name="vivaPass" class="modal-form-input" value="8" placeholder="Pass" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-box-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeAddSubjectModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Add Subject</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2. EDIT SUBJECT MODAL -->
+<div id="editSubjectModal" class="modal-overlay">
+    <div class="modal-box">
+        <form method="post" asp-page-handler="EditSubject">
+            <input type="hidden" id="editSubjectId" name="subjectId" />
+            <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+            <input type="hidden" name="course" value="@Model.SelectedCourse" />
+            <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+
+            <div class="modal-box-header">
+                <h4 class="modal-box-title">Edit Subject</h4>
+                <button type="button" class="modal-close-btn" onclick="closeEditSubjectModal()">&times;</button>
+            </div>
+            <div class="modal-box-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group modal-form-full">
+                        <label>Subject Name *</label>
+                        <input type="text" id="editSubjectName" name="subjectName" class="modal-form-input" required />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Subject Code *</label>
+                        <input type="text" id="editSubjectCode" name="subjectCode" class="modal-form-input" required />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Credits *</label>
+                        <input type="number" step="0.5" id="editCredits" name="credits" class="modal-form-input" required />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Display Order</label>
+                        <input type="number" id="editDisplayOrder" name="displayOrder" class="modal-form-input" required />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Status</label>
+                        <select id="editStatus" name="status" class="modal-form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Archived">Archived</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-box-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeEditSubjectModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 3. CONFIGURE COMPONENTS MODAL -->
+<div id="configComponentsModal" class="modal-overlay">
+    <div class="modal-box">
+        <form method="post" asp-page-handler="ConfigureComponents">
+            <input type="hidden" id="configSubjectId" name="subjectId" />
+            <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+            <input type="hidden" name="course" value="@Model.SelectedCourse" />
+            <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+
+            <div class="modal-box-header">
+                <div>
+                    <h4 class="modal-box-title">Evaluation Components</h4>
+                    <span id="configSubjectTitle" style="font-size: 0.85rem; color: #627d98;"></span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeConfigureComponentsModal()">&times;</button>
+            </div>
+            <div class="modal-box-body">
+                <p style="font-size: 0.85rem; color: #486581; margin-bottom: 1rem;">
+                    Select active components and set maximum &amp; minimum passing marks. Component marks will be accurately enforced during Marks entry.
+                </p>
+
+                <div class="comp-config-section">
+                    <div class="comp-config-row" style="font-weight: 700; color: #334e68; border-bottom: 2px solid #cbd2d9;">
+                        <span>Component</span>
+                        <span>Max Marks</span>
+                        <span>Pass Marks</span>
+                    </div>
+
+                    <div class="comp-config-row">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" id="cfgHasInternal" name="hasInternal" value="true" />
+                            <span>Internal Assessment</span>
+                        </label>
+                        <input type="number" step="1" id="cfgInternalMax" name="internalMax" class="modal-form-input" value="30" />
+                        <input type="number" step="1" id="cfgInternalPass" name="internalPass" class="modal-form-input" value="12" />
+                    </div>
+
+                    <div class="comp-config-row">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" id="cfgHasTheory" name="hasTheory" value="true" />
+                            <span>Theory Exam</span>
+                        </label>
+                        <input type="number" step="1" id="cfgTheoryMax" name="theoryMax" class="modal-form-input" value="70" />
+                        <input type="number" step="1" id="cfgTheoryPass" name="theoryPass" class="modal-form-input" value="28" />
+                    </div>
+
+                    <div class="comp-config-row">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" id="cfgHasPractical" name="hasPractical" value="true" />
+                            <span>Practical Lab</span>
+                        </label>
+                        <input type="number" step="1" id="cfgPracticalMax" name="practicalMax" class="modal-form-input" value="50" />
+                        <input type="number" step="1" id="cfgPracticalPass" name="practicalPass" class="modal-form-input" value="20" />
+                    </div>
+
+                    <div class="comp-config-row">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" id="cfgHasProject" name="hasProject" value="true" />
+                            <span>Project Work</span>
+                        </label>
+                        <input type="number" step="1" id="cfgProjectMax" name="projectMax" class="modal-form-input" value="100" />
+                        <input type="number" step="1" id="cfgProjectPass" name="projectPass" class="modal-form-input" value="40" />
+                    </div>
+
+                    <div class="comp-config-row">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" id="cfgHasViva" name="hasViva" value="true" />
+                            <span>Viva Voce</span>
+                        </label>
+                        <input type="number" step="1" id="cfgVivaMax" name="vivaMax" class="modal-form-input" value="20" />
+                        <input type="number" step="1" id="cfgVivaPass" name="vivaPass" class="modal-form-input" value="8" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-box-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeConfigureComponentsModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Update Components</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 4. CLONE / VERSION SYLLABUS MODAL (PART 2, 3, 28) -->
+<div id="cloneSyllabusModal" class="modal-overlay">
+    <div class="modal-box">
+        <form method="post" asp-page-handler="CloneSyllabus">
+            <input type="hidden" name="course" value="@Model.SelectedCourse" />
+            <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+
+            <div class="modal-box-header">
+                <h4 class="modal-box-title">Clone Syllabus to New Academic Year</h4>
+                <button type="button" class="modal-close-btn" onclick="closeCloneModal()">&times;</button>
+            </div>
+            <div class="modal-box-body">
+                <p style="font-size: 0.86rem; color: #486581; line-height: 1.5; margin-bottom: 1rem;">
+                    This safely creates an independent copy of <strong>@Model.SelectedCourse (@Model.SelectedSemester)</strong> for the target academic year. The original <strong>@Model.SelectedAcademicYear</strong> syllabus and historical student results will remain completely untouched.
+                </p>
+
+                <div class="modal-form-grid">
+                    <div class="modal-form-group">
+                        <label>Source Academic Year</label>
+                        <input type="text" name="sourceYear" class="modal-form-input" value="@Model.SelectedAcademicYear" readonly style="background:#f1f5f9;" />
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Target Academic Year *</label>
+                        <select name="targetYear" class="modal-form-select" required>
+                            @foreach (var ay in Model.AcademicYearsList)
+                            {
+                                if (ay.YearCode != Model.SelectedAcademicYear)
+                                {
+                                    <option value="@ay.YearCode">@ay.YearName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="modal-form-group modal-form-full">
+                        <label>Target Program &amp; Semester</label>
+                        <input type="text" class="modal-form-input" value="@Model.SelectedCourse - @Model.SelectedSemester" readonly style="background:#f1f5f9;" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-box-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeCloneModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Create New Syllabus Version</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        // Modal handlers
+        function openAddSubjectModal() {
+            document.getElementById('addSubjectModal').classList.add('show');
+        }
+        function closeAddSubjectModal() {
+            document.getElementById('addSubjectModal').classList.remove('show');
+        }
+
+        function openEditSubjectModal(id, code, name, credits, order, status) {
+            document.getElementById('editSubjectId').value = id;
+            document.getElementById('editSubjectCode').value = code;
+            document.getElementById('editSubjectName').value = name;
+            document.getElementById('editCredits').value = credits;
+            document.getElementById('editDisplayOrder').value = order;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editSubjectModal').classList.add('show');
+        }
+        function closeEditSubjectModal() {
+            document.getElementById('editSubjectModal').classList.remove('show');
+        }
+
+        function openConfigureComponentsModal(id, name, components) {
+            document.getElementById('configSubjectId').value = id;
+            document.getElementById('configSubjectTitle').textContent = name;
+
+            // Reset checkboxes
+            document.getElementById('cfgHasInternal').checked = false;
+            document.getElementById('cfgHasTheory').checked = false;
+            document.getElementById('cfgHasPractical').checked = false;
+            document.getElementById('cfgHasProject').checked = false;
+            document.getElementById('cfgHasViva').checked = false;
+
+            // Populate from existing components
+            if (components && Array.isArray(components)) {
+                components.forEach(function (c) {
+                    var type = (c.ComponentType || '').toLowerCase();
+                    if (type === 'internal') {
+                        document.getElementById('cfgHasInternal').checked = true;
+                        document.getElementById('cfgInternalMax').value = c.MaximumMarks;
+                        document.getElementById('cfgInternalPass').value = c.PassingMarks;
+                    } else if (type === 'theory') {
+                        document.getElementById('cfgHasTheory').checked = true;
+                        document.getElementById('cfgTheoryMax').value = c.MaximumMarks;
+                        document.getElementById('cfgTheoryPass').value = c.PassingMarks;
+                    } else if (type === 'practical') {
+                        document.getElementById('cfgHasPractical').checked = true;
+                        document.getElementById('cfgPracticalMax').value = c.MaximumMarks;
+                        document.getElementById('cfgPracticalPass').value = c.PassingMarks;
+                    } else if (type === 'project') {
+                        document.getElementById('cfgHasProject').checked = true;
+                        document.getElementById('cfgProjectMax').value = c.MaximumMarks;
+                        document.getElementById('cfgProjectPass').value = c.PassingMarks;
+                    } else if (type === 'viva') {
+                        document.getElementById('cfgHasViva').checked = true;
+                        document.getElementById('cfgVivaMax').value = c.MaximumMarks;
+                        document.getElementById('cfgVivaPass').value = c.PassingMarks;
+                    }
+                });
+            }
+
+            document.getElementById('configComponentsModal').classList.add('show');
+        }
+        function closeConfigureComponentsModal() {
+            document.getElementById('configComponentsModal').classList.remove('show');
+        }
+
+        function openCloneModal() {
+            document.getElementById('cloneSyllabusModal').classList.add('show');
+        }
+        function closeCloneModal() {
+            document.getElementById('cloneSyllabusModal').classList.remove('show');
+        }
+
+        // Close on outside click
+        window.addEventListener('click', function (e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('show');
+            }
+        });
+
+        // Real-time SignalR listener for Syllabus Updates (PART 34)
+        if (typeof signalR !== 'undefined') {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/collegeHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("CourseUpdated", function (info) {
+                console.log("Course syllabus updated:", info);
+            });
+
+            connection.start().catch(err => console.error("SignalR Connection Error: ", err));
+        }
+    </script>
+}

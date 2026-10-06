@@ -1,0 +1,205 @@
+@using Microsoft.AspNetCore.Authentication
+@using CollegeManagementSystem.Helpers
+@{
+    var currentPath = ViewContext.HttpContext.Request.Path.Value?.ToLower() ?? "";
+    var auth = await ViewContext.HttpContext.AuthenticateAsync(AuthHelper.AdminScheme);
+    var adminName = auth?.Principal?.Identity?.Name ?? Context.Session.GetString("AdminName") ?? "System Administrator";
+    var adminId = auth?.Principal?.FindFirst("UserId")?.Value ?? Context.Session.GetString("AdminId") ?? "Admin#123";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Portal | Shree Sarswati Vishv Vidyalay</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/realtime.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="admin-body">
+    <div class="admin-app-layout">
+        <!-- 1. FIXED/RESPONSIVE ADMIN SIDEBAR -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <!-- Brand Header -->
+            <div class="sidebar-brand-box">
+                <a href="/Admin" class="sidebar-brand-link">
+                    <span class="sidebar-logo-icon">🔬</span>
+                    <div class="sidebar-brand-text">
+                        <span class="sidebar-inst-name">Shree Sarswati Vishv Vidyalay</span>
+                        <span class="sidebar-inst-sub">Institute of Science</span>
+                    </div>
+                </a>
+                <span class="sidebar-portal-badge">ADMIN MANAGEMENT</span>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav-container">
+                <div class="nav-section-title">CORE MODULES</div>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-item">
+                        <a href="/Admin" class="sidebar-link @(currentPath == "/admin" ? "active" : "")">
+                            <span class="menu-icon">📊</span>
+                            <span class="menu-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/Students" class="sidebar-link @(currentPath.StartsWith("/admin/students") ? "active" : "")">
+                            <span class="menu-icon">🎓</span>
+                            <span class="menu-text">Students</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/Teachers" class="sidebar-link @(currentPath.StartsWith("/admin/teachers") ? "active" : "")">
+                            <span class="menu-icon">👨‍🏫</span>
+                            <span class="menu-text">Teachers</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/Courses" class="sidebar-link @(currentPath.StartsWith("/admin/courses") ? "active" : "")">
+                            <span class="menu-icon">🔬</span>
+                            <span class="menu-text">Courses</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/Syllabus" class="sidebar-link @(currentPath.StartsWith("/admin/syllabus") ? "active" : "")">
+                            <span class="menu-icon">📚</span>
+                            <span class="menu-text">Syllabus</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="nav-section-title">ACADEMICS &amp; OPERATIONS</div>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-item">
+                        <a href="/Admin/Attendance" class="sidebar-link @(currentPath.StartsWith("/admin/attendance") ? "active" : "")">
+                            <span class="menu-icon">📅</span>
+                            <span class="menu-text">Attendance</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/Marks" class="sidebar-link @(currentPath.StartsWith("/admin/marks") ? "active" : "")">
+                            <span class="menu-icon">📈</span>
+                            <span class="menu-text">Marks</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" class="sidebar-link disabled" title="Fees module coming soon">
+                            <span class="menu-icon">💳</span>
+                            <span class="menu-text">Fees</span>
+                            <span class="menu-badge-soon">Coming Soon</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" class="sidebar-link disabled" title="Timetable module coming soon">
+                            <span class="menu-icon">⏰</span>
+                            <span class="menu-text">Timetable</span>
+                            <span class="menu-badge-soon">Coming Soon</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/Registrations" class="sidebar-link @(currentPath.StartsWith("/admin/registrations") ? "active" : "")">
+                            <span class="menu-icon">📝</span>
+                            <span class="menu-text">Registrations</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" class="sidebar-link disabled" title="Teacher Leave module coming soon">
+                            <span class="menu-icon">📋</span>
+                            <span class="menu-text">Teacher Leave</span>
+                            <span class="menu-badge-soon">Coming Soon</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Admin/ChangePassword" class="sidebar-link @(currentPath.StartsWith("/admin/changepassword") ? "active" : "")" title="Change Admin Password & Security Settings">
+                            <span class="menu-icon">⚙️</span>
+                            <span class="menu-text">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Bottom Profile & Logout -->
+            <div class="sidebar-footer-box">
+                <a href="/Admin/ChangePassword" class="admin-profile-strip" style="text-decoration: none;" title="Security Settings: Click to Change Password">
+                    <span class="admin-avatar">👤</span>
+                    <div class="admin-info-text">
+                        <strong class="admin-name">@adminName</strong>
+                        <span class="admin-role">@adminId</span>
+                    </div>
+                </a>
+                <a href="/Logout?role=Admin" class="sidebar-logout-btn" title="Logout from Admin Portal">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Sidebar Mobile Overlay -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- 2. MAIN APPLICATION WORKSPACE -->
+        <div class="admin-main-wrapper">
+            <!-- Top App Bar -->
+            <header class="admin-header-bar">
+                <div class="header-left-group">
+                    <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation Sidebar">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <div class="header-title-block">
+                        <span class="header-sub-tag">Institutional ERP</span>
+                        <h2 class="header-main-title">@(ViewData["HeaderTitle"] ?? "Admin Dashboard")</h2>
+                    </div>
+                </div>
+
+                <div class="header-right-group">
+                    <div class="header-date-badge">
+                        <span class="cal-icon">📅</span>
+                        <span class="date-text">@DateTime.Today.ToString("dddd, dd MMM yyyy")</span>
+                    </div>
+                    <a href="/" target="_blank" class="header-site-btn" title="Open Public Website in new tab">
+                        <span>🌐</span> Public Site
+                    </a>
+                    <a href="/Logout?role=Admin" class="header-logout-btn" title="Logout from Admin Portal">
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Main Content Viewport -->
+            <main class="admin-content-viewport">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <!-- Admin Interactive Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggleBtn = document.getElementById("sidebarToggle");
+            var sidebar = document.getElementById("adminSidebar");
+            var backdrop = document.getElementById("sidebarBackdrop");
+
+            if (toggleBtn && sidebar && backdrop) {
+                toggleBtn.addEventListener("click", function () {
+                    sidebar.classList.toggle("open");
+                    backdrop.classList.toggle("active");
+                });
+
+                backdrop.addEventListener("click", function () {
+                    sidebar.classList.remove("open");
+                    backdrop.classList.remove("active");
+                });
+            }
+        });
+    </script>
+
+    <!-- SignalR Real-Time Updates -->
+    <script src="~/js/signalr.min.js" asp-append-version="true"></script>
+    <script src="~/js/realtime-client.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

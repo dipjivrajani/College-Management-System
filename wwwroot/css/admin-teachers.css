@@ -1,0 +1,982 @@
+/* ========================================================
+   Admin Teacher Management Stylesheet (admin-teachers.css)
+   Shree Sarswati Vishv Vidyalay Institute of Science, Bhavnagar
+   ======================================================== */
+
+.teachers-page-container {
+    width: 100%;
+}
+
+/* Page Top Header */
+.teachers-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.teachers-header-title {
+    display: flex;
+    flex-direction: column;
+}
+
+.teachers-header-title h1 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--admin-navy, #102a43);
+    margin: 0 0 2px 0;
+}
+
+.teachers-header-title p {
+    font-size: 0.85rem;
+    color: var(--admin-muted, #627d98);
+    margin: 0;
+}
+
+.btn-add-teacher {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--admin-blue, #3182ce);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(49, 130, 206, 0.25);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-add-teacher:hover {
+    background-color: var(--admin-blue-hover, #2b6cb0);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(49, 130, 206, 0.35);
+}
+
+/* Credentials Generated Banner */
+.credentials-banner {
+    background-color: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.credentials-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.credentials-content strong {
+    color: #065f46;
+    font-size: 0.88rem;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.credentials-details {
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #047857;
+    background-color: #ffffff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px dashed #a7f3d0;
+    display: inline-block;
+}
+
+/* Status Alert */
+.alert-feedback {
+    background-color: #ebf8ff;
+    border: 1px solid #bee3f8;
+    color: #2b6cb0;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+/* ========================================================
+   DEPARTMENT-WISE TEACHER CARDS SECTION
+   ======================================================== */
+.dept-overview-section {
+    background-color: #ffffff;
+    border: 1px solid var(--admin-border, #e3eaf2);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(16, 42, 67, 0.03);
+}
+
+.dept-section-head {
+    margin-bottom: 12px;
+}
+
+.dept-section-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--admin-blue, #3182ce);
+    background-color: #ebf8ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.dept-section-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--admin-navy, #102a43);
+    margin: 0 0 2px 0;
+}
+
+.dept-section-sub {
+    font-size: 0.8rem;
+    color: var(--admin-muted, #627d98);
+    margin: 0;
+}
+
+.dept-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.dept-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    cursor: pointer;
+}
+
+.dept-card:hover {
+    background-color: #eff6ff;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+.dept-card.active {
+    background-color: #ebf8ff;
+    border-color: var(--admin-blue, #3182ce);
+    box-shadow: 0 2px 6px rgba(49, 130, 206, 0.2);
+}
+
+.dept-card-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.dept-card-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.dept-card-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--admin-navy, #102a43);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dept-card.active .dept-card-name {
+    color: var(--admin-blue, #3182ce);
+}
+
+.dept-card-count {
+    font-size: 0.7rem;
+    color: var(--admin-muted, #627d98);
+    font-weight: 600;
+}
+
+/* ========================================================
+   FILTERS & SEARCH BAR CARD
+   ======================================================== */
+.filter-card-bar {
+    background-color: #ffffff;
+    border: 1px solid var(--admin-border, #e3eaf2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(16, 42, 67, 0.03);
+}
+
+.filter-form-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-input-wrap {
+    flex: 1 1 250px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px 0 34px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    color: var(--admin-text, #243b53);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--admin-blue, #3182ce);
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+}
+
+.search-icon-symbol {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.filter-select {
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--admin-text, #243b53);
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.btn-filter-submit {
+    height: 38px;
+    padding: 0 14px;
+    background-color: var(--admin-blue, #3182ce);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-filter-submit:hover {
+    background-color: var(--admin-blue-hover, #2b6cb0);
+}
+
+.btn-filter-clear {
+    height: 38px;
+    padding: 0 12px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-filter-clear:hover {
+    background-color: #e2e8f0;
+}
+
+.filter-pills-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.count-pill {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.count-pill.active {
+    background-color: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+}
+
+/* ========================================================
+   TEACHERS TABLE CARD & COLUMNS
+   ======================================================== */
+.teachers-table-card {
+    background-color: #ffffff;
+    border: 1px solid var(--admin-border, #e3eaf2);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(16, 42, 67, 0.04);
+    overflow: hidden;
+    width: 100%;
+}
+
+.panel-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.teachers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: left;
+}
+
+.teachers-table th {
+    background-color: #f8fafc;
+    color: var(--admin-muted, #627d98);
+    font-weight: 700;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--admin-border, #e3eaf2);
+    white-space: nowrap;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.teachers-table td {
+    padding: 8px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 0.82rem;
+}
+
+.teachers-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Specific Column Widths */
+.col-tid {
+    width: 90px;
+    min-width: 85px;
+    white-space: nowrap;
+}
+
+.col-tname {
+    min-width: 140px;
+}
+
+.col-tdept {
+    width: 110px;
+    min-width: 100px;
+}
+
+.col-tdesig {
+    width: 105px;
+    min-width: 95px;
+}
+
+.col-tqual {
+    width: 125px;
+    min-width: 110px;
+}
+
+.col-tmobile {
+    width: 95px;
+    min-width: 90px;
+    white-space: nowrap;
+}
+
+.col-temail {
+    width: 130px;
+    max-width: 135px;
+}
+
+.col-tjoining {
+    width: 90px;
+    min-width: 85px;
+    text-align: center;
+}
+
+.col-tstatus {
+    width: 75px;
+    min-width: 70px;
+    text-align: center;
+}
+
+.col-tactions {
+    width: 250px;
+    min-width: 245px;
+    text-align: right;
+}
+
+/* Teacher Data Cells */
+.teacher-id-link {
+    font-family: monospace;
+    font-weight: 800;
+    color: var(--admin-blue, #3182ce);
+    text-decoration: none;
+    font-size: 0.84rem;
+    letter-spacing: 0.2px;
+    transition: color 0.15s ease;
+}
+
+.teacher-id-link:hover {
+    color: var(--admin-navy, #102a43);
+    text-decoration: underline;
+}
+
+.teacher-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.teacher-avatar-small {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #f3e8ff;
+    color: #7e22ce;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 1px solid #e9d5ff;
+    flex-shrink: 0;
+}
+
+.teacher-name-text {
+    font-weight: 700;
+    color: var(--admin-navy, #102a43);
+    font-size: 0.82rem;
+    text-decoration: none;
+    line-height: 1.25;
+}
+
+.teacher-name-text:hover {
+    color: var(--admin-blue, #3182ce);
+    text-decoration: underline;
+}
+
+.dept-text {
+    font-size: 0.78rem;
+    color: #334155;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.desig-pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #1e40af;
+    background-color: #dbeafe;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid #bfdbfe;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.qual-cell-wrap {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.qual-text {
+    font-size: 0.78rem;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.spec-sub {
+    font-size: 0.7rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.teacher-mobile-text {
+    font-size: 0.78rem;
+    color: #475569;
+    font-family: monospace;
+}
+
+.teacher-email-text {
+    font-size: 0.78rem;
+    color: #475569;
+    display: block;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.joining-text {
+    font-size: 0.78rem;
+    color: #475569;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Status Badges */
+.badge-status-active {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #15803d;
+    background-color: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.badge-status-inactive {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #b91c1c;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+/* Action Buttons */
+.action-buttons-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.action-btn {
+    padding: 3px 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background-color: #ffffff;
+    line-height: 1.2;
+    transition: all 0.15s ease;
+}
+
+.action-btn.view {
+    color: var(--admin-blue, #3182ce);
+    border-color: #bee3f8;
+    background-color: #ebf8ff;
+}
+
+.action-btn.view:hover {
+    background-color: #bee3f8;
+}
+
+.action-btn.edit {
+    color: #334155;
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+}
+
+.action-btn.edit:hover {
+    background-color: #e2e8f0;
+}
+
+.action-btn.pwd {
+    color: #b45309;
+    border-color: #fde68a;
+    background-color: #fffbeb;
+}
+
+.action-btn.pwd:hover {
+    background-color: #fef3c7;
+}
+
+.action-btn.toggle {
+    border-radius: 4px;
+}
+
+.action-btn.toggle.active-state {
+    color: #b45309;
+    border-color: #fed7aa;
+    background-color: #fff7ed;
+}
+
+.action-btn.toggle.active-state:hover {
+    background-color: #ffedd5;
+}
+
+.action-btn.toggle.inactive-state {
+    color: #15803d;
+    border-color: #bbf7d0;
+    background-color: #f0fdf4;
+}
+
+.action-btn.toggle.inactive-state:hover {
+    background-color: #dcfce7;
+}
+
+.action-btn.delete {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background-color: #fef2f2;
+}
+
+.action-btn.delete:hover {
+    background-color: #fee2e2;
+}
+
+.empty-state-notice {
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--admin-muted, #627d98);
+}
+
+/* ========================================================
+   MODALS
+   ======================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(9, 26, 41, 0.65);
+    backdrop-filter: blur(2px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.modal-dialog {
+    background-color: #ffffff;
+    border: 1px solid var(--admin-border, #e3eaf2);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 640px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.modal-dialog.modal-sm {
+    max-width: 440px;
+}
+
+.modal-header {
+    padding: 14px 20px;
+    background-color: #fafbfc;
+    border-bottom: 1px solid var(--admin-border, #e3eaf2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--admin-navy, #102a43);
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: #94a3b8;
+    cursor: pointer;
+    line-height: 1;
+    text-decoration: none;
+    padding: 4px;
+}
+
+.modal-close-btn:hover {
+    color: #dc2626;
+}
+
+.modal-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 12px 20px;
+    background-color: #fafbfc;
+    border-top: 1px solid var(--admin-border, #e3eaf2);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-group-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group-modal.full-width {
+    grid-column: span 2;
+}
+
+.modal-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--admin-text, #243b53);
+}
+
+.modal-input {
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    color: var(--admin-text, #243b53);
+    background-color: #ffffff;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: var(--admin-blue, #3182ce);
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+}
+
+.modal-input-readonly {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border-style: dashed;
+    cursor: not-allowed;
+    font-family: monospace;
+    font-weight: 700;
+}
+
+.btn-modal-save {
+    padding: 8px 18px;
+    background-color: var(--admin-blue, #3182ce);
+    color: #ffffff;
+    border: 1px solid var(--admin-blue, #3182ce);
+    border-radius: 6px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-modal-save:hover {
+    background-color: var(--admin-blue-hover, #2b6cb0);
+}
+
+.btn-modal-cancel {
+    padding: 8px 14px;
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-modal-cancel:hover {
+    background-color: #f1f5f9;
+}
+
+.btn-modal-delete {
+    padding: 8px 18px;
+    background-color: #dc2626;
+    color: #ffffff;
+    border: 1px solid #dc2626;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-modal-delete:hover {
+    background-color: #b91c1c;
+}
+
+/* Profile Card Modal */
+.profile-modal-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.profile-avatar-wrap {
+    text-align: center;
+    background-color: #f8fafc;
+    border: 1px solid var(--admin-border, #e3eaf2);
+    border-radius: 10px;
+    padding: 16px 10px;
+}
+
+.profile-avatar-large {
+    font-size: 3.5rem;
+    margin-bottom: 6px;
+}
+
+.profile-id-tag {
+    font-family: monospace;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--admin-blue, #3182ce);
+    background-color: #ebf8ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.profile-status-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.profile-details-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.profile-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 1px;
+}
+
+.profile-val {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--admin-navy, #102a43);
+}
+
+/* Delete Warning Box */
+.delete-warning-box {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.delete-warning-icon {
+    font-size: 2rem;
+    margin-bottom: 6px;
+}
+
+.delete-teacher-highlight {
+    font-size: 1rem;
+    color: #991b1b;
+    font-weight: 700;
+    margin: 8px 0;
+}
+
+.delete-info-note {
+    font-size: 0.8rem;
+    color: #7f1d1d;
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN
+   ======================================================== */
+@media (max-width: 992px) {
+    .filter-pills-summary {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .teachers-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .btn-add-teacher {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .search-input-wrap {
+        flex: 1 1 100%;
+    }
+
+    .filter-select {
+        flex: 1 1 100%;
+    }
+
+    .modal-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-modal.full-width {
+        grid-column: span 1;
+    }
+
+    .profile-modal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-details-list {
+        grid-template-columns: 1fr;
+    }
+}

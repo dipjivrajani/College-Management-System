@@ -1,0 +1,585 @@
+@page "/Admin/Courses/Subjects"
+@model CollegeManagementSystem.Pages.AdminPortal.SubjectsAdmin.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Subject Management";
+    ViewData["HeaderTitle"] = "Subject Management";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-subjects.css" asp-append-version="true" />
+}
+
+<div class="subjects-admin-container">
+    <!-- Notifications -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="subj-alert alert-success" role="alert">
+            <span class="alert-icon">✓</span>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="subj-alert alert-danger" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <!-- Breadcrumb & Flow Bar -->
+    <div class="breadcrumb-flow-bar">
+        <a href="/Admin/Courses" class="crumb-link">Courses</a>
+        <span class="crumb-sep">&rsaquo;</span>
+        <span class="crumb-current">@Model.SelectedCourse</span>
+        @if (!string.IsNullOrEmpty(Model.SelectedSemester) && Model.SelectedSemester != "All")
+        {
+            <span class="crumb-sep">&rsaquo;</span>
+            <span class="crumb-badge">@Model.SelectedSemester</span>
+        }
+        <span class="crumb-sep">&rsaquo;</span>
+        <span class="crumb-current">Subject Configuration</span>
+    </div>
+
+    <!-- Header Section -->
+    <div class="subjects-header-banner">
+        <div>
+            <h2 class="subjects-heading">Subject &amp; Academic Component Management</h2>
+            <p class="subjects-subheading">Configure course-specific and semester-specific subjects, credits, and mark components (Internal, Theory, Practical, Project, Viva).</p>
+        </div>
+        <div class="header-action-wrap">
+            <a href="/Admin/Courses" class="btn-back-courses">
+                <span>&larr;</span> Back to Courses
+            </a>
+            <button type="button" class="btn-add-subject" onclick="openAddSubjectModal()">
+                <span>➕</span> Add Subject
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter & Navigation Bar -->
+    <div class="card filter-card">
+        <form method="get" class="filter-form-grid">
+            <div class="filter-col">
+                <label class="filter-label" for="courseSelect">B.Sc. Program / Course:</label>
+                <select id="courseSelect" name="SelectedCourse" class="filter-select" onchange="this.form.submit()">
+                    @foreach (var c in CollegeManagementSystem.Pages.AdminPortal.SubjectsAdmin.IndexModel.CourseList)
+                    {
+                        <!option value="@c" @(Model.SelectedCourse == c ? "selected" : "")>@c</!option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-col">
+                <label class="filter-label" for="semesterSelect">Semester:</label>
+                <select id="semesterSelect" name="SelectedSemester" class="filter-select" onchange="this.form.submit()">
+                    <!option value="All" @(string.IsNullOrEmpty(Model.SelectedSemester) || Model.SelectedSemester == "All" ? "selected" : "")>All Semesters (1 - 6)</!option>
+                    @foreach (var s in CollegeManagementSystem.Pages.AdminPortal.SubjectsAdmin.IndexModel.SemesterList)
+                    {
+                        <!option value="@s" @(Model.SelectedSemester == s ? "selected" : "")>@s</!option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-col search-col">
+                <label class="filter-label" for="searchInput">Search Subject:</label>
+                <div class="search-input-wrap">
+                    <input type="text" id="searchInput" name="SearchTerm" class="filter-input" 
+                           placeholder="Search by code or title..." value="@Model.SearchTerm" />
+                    <button type="submit" class="btn-search">Filter</button>
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || (!string.IsNullOrEmpty(Model.SelectedSemester) && Model.SelectedSemester != "All"))
+                    {
+                        <a href="/Admin/Courses/Subjects?SelectedCourse=@Uri.EscapeDataString(Model.SelectedCourse)" class="btn-reset">Reset</a>
+                    }
+                </div>
+            </div>
+        </form>
+
+        <!-- Semester Quick Tabs -->
+        <div class="sem-quick-tabs">
+            <span class="tab-label">Quick Semesters:</span>
+            <a href="/Admin/Courses/Subjects?SelectedCourse=@Uri.EscapeDataString(Model.SelectedCourse)&SelectedSemester=All" 
+               class="sem-tab @(string.IsNullOrEmpty(Model.SelectedSemester) || Model.SelectedSemester == "All" ? "active" : "")">All</a>
+            @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.SubjectsAdmin.IndexModel.SemesterList)
+            {
+                <a href="/Admin/Courses/Subjects?SelectedCourse=@Uri.EscapeDataString(Model.SelectedCourse)&SelectedSemester=@Uri.EscapeDataString(sem)" 
+                   class="sem-tab @(Model.SelectedSemester == sem ? "active" : "")">@sem</a>
+            }
+        </div>
+    </div>
+
+    <!-- Subjects Table Card -->
+    <div class="card subjects-table-card">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">@Model.SelectedCourse &mdash; Subjects Directory (@Model.TotalSubjectsCount)</h3>
+                <p class="card-subtitle">Subjects are strictly course and semester specific, sorted alphabetically (A-Z).</p>
+            </div>
+            <div class="card-header-meta">
+                <span class="meta-pill pill-total">@Model.TotalSubjectsCount Subjects</span>
+                <span class="meta-pill pill-active">@Model.ActiveSubjectsCount Active</span>
+            </div>
+        </div>
+
+        @if (Model.SubjectsList.Count == 0)
+        {
+            <div class="empty-state">
+                <span class="empty-icon">📚</span>
+                <h4>No Subjects Configured</h4>
+                <p>No subjects found for <strong>@Model.SelectedCourse</strong> @(!string.IsNullOrEmpty(Model.SelectedSemester) && Model.SelectedSemester != "All" ? $"({Model.SelectedSemester})" : "").</p>
+                <button type="button" class="btn-add-subject" onclick="openAddSubjectModal()">➕ Add First Subject</button>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="subjects-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 95px;">Code</th>
+                            <th>Subject Name</th>
+                            <th style="width: 110px;">Semester</th>
+                            <th style="width: 80px; text-align: center;">Credits</th>
+                            <th>Configured Components (Max Marks)</th>
+                            <th style="width: 85px; text-align: center;">Status</th>
+                            <th style="width: 260px; text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.SubjectsList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="subj-code-badge">@s.SubjectCode</span>
+                                </td>
+                                <td>
+                                    <strong class="subj-name-text">@s.SubjectName</strong>
+                                    <div class="subj-dept-text">Dept: @s.Department</div>
+                                </td>
+                                <td>
+                                    <span class="sem-tag">@s.Semester</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="credits-badge" title="Credits used for SGPA / CGPA calculation">@s.Credits Cr</span>
+                                </td>
+                                <td>
+                                    <div class="comp-badges-wrap">
+                                        @if (s.Components.Count == 0)
+                                        {
+                                            <span class="comp-none">None configured</span>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var c in s.Components)
+                                            {
+                                                <span class="comp-badge comp-@c.ComponentType.ToLower()">
+                                                    @c.ComponentType: @c.MaximumMarks.ToString("0.#")
+                                                </span>
+                                            }
+                                        }
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if (s.Status == "Active")
+                                    {
+                                        <span class="status-pill pill-active">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill pill-inactive">Inactive</span>
+                                    }
+                                </td>
+                                <td style="text-align: center;">
+                                    <div class="action-btn-row">
+                                        <button type="button" class="btn-action-comps" 
+                                                onclick="openComponentsModal(@s.SubjectId, '@s.SubjectName.Replace("'", "\\'") (@s.SubjectCode)', @(s.Components.Any(c => c.ComponentType == "Internal").ToString().ToLower()), @(s.Components.FirstOrDefault(c => c.ComponentType == "Internal")?.MaximumMarks ?? 30), @(s.Components.Any(c => c.ComponentType == "Theory").ToString().ToLower()), @(s.Components.FirstOrDefault(c => c.ComponentType == "Theory")?.MaximumMarks ?? 70), @(s.Components.Any(c => c.ComponentType == "Practical").ToString().ToLower()), @(s.Components.FirstOrDefault(c => c.ComponentType == "Practical")?.MaximumMarks ?? 50), @(s.Components.Any(c => c.ComponentType == "Project").ToString().ToLower()), @(s.Components.FirstOrDefault(c => c.ComponentType == "Project")?.MaximumMarks ?? 100), @(s.Components.Any(c => c.ComponentType == "Viva").ToString().ToLower()), @(s.Components.FirstOrDefault(c => c.ComponentType == "Viva")?.MaximumMarks ?? 50))"
+                                                title="Configure Marks Components">
+                                            ⚙️ Components
+                                        </button>
+                                        <button type="button" class="btn-action-edit"
+                                                onclick="openEditSubjectModal(@s.SubjectId, '@s.SubjectName.Replace("'", "\\'") ', '@s.SubjectCode', '@s.Semester', @s.Credits, '@s.Status')"
+                                                title="Edit Subject">
+                                            ✏️ Edit
+                                        </button>
+                                        <form method="post" asp-page-handler="ToggleStatus" style="display:inline;">
+                                            <input type="hidden" name="subjectId" value="@s.SubjectId" />
+                                            <button type="submit" class="btn-action-toggle @(s.Status == "Active" ? "toggle-deact" : "toggle-act")"
+                                                    title="@(s.Status == "Active" ? "Deactivate" : "Activate")">
+                                                @(s.Status == "Active" ? "Deactivate" : "Activate")
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- MODAL: ADD SUBJECT -->
+<div id="addSubjectModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box modal-lg">
+        <div class="modal-header">
+            <h3 class="modal-title">➕ Add New Subject</h3>
+            <button type="button" class="btn-close-modal" onclick="closeAddSubjectModal()">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="AddSubject" onsubmit="return validateAddForm()">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label required">Course / Program</label>
+                        <input type="text" name="course" class="form-control" value="@Model.SelectedCourse" readonly />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label required">Semester</label>
+                        <select name="semester" class="form-control" required>
+                            @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.SubjectsAdmin.IndexModel.SemesterList)
+                            {
+                                <!option value="@sem" @(Model.SelectedSemester == sem ? "selected" : "")>@sem</!option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label class="form-label required">Subject Name</label>
+                        <input type="text" name="subjectName" class="form-control" placeholder="e.g. Cell Biology and Genetics" required />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Subject Code</label>
+                        <input type="text" name="subjectCode" class="form-control" placeholder="e.g. BOT101 (optional auto)" />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label required">Credits</label>
+                        <input type="number" step="0.5" min="0.5" max="10" name="credits" class="form-control" value="4.0" required />
+                    </div>
+                </div>
+
+                <div class="comp-config-section">
+                    <h4 class="comp-section-title">Applicable Marks Components</h4>
+                    <p class="comp-section-note">Check components applicable to this subject. Internal marks are strictly validated between 1 and 30.</p>
+
+                    <div class="comp-config-grid">
+                        <!-- Internal -->
+                        <div class="comp-config-item">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasInternal" id="addHasInternal" value="true" checked onchange="toggleCompInput('addHasInternal', 'addInternalMax')" />
+                                <strong>Internal Assessment</strong>
+                            </label>
+                            <div class="comp-max-input-wrap">
+                                <span class="max-label">Max Marks (Max 30):</span>
+                                <input type="number" name="internalMax" id="addInternalMax" class="form-control comp-max-num" value="30" min="1" max="30" required />
+                            </div>
+                        </div>
+
+                        <!-- Theory -->
+                        <div class="comp-config-item">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasTheory" id="addHasTheory" value="true" checked onchange="toggleCompInput('addHasTheory', 'addTheoryMax')" />
+                                <strong>Theory Exam</strong>
+                            </label>
+                            <div class="comp-max-input-wrap">
+                                <span class="max-label">Max Marks:</span>
+                                <input type="number" name="theoryMax" id="addTheoryMax" class="form-control comp-max-num" value="70" min="1" max="100" />
+                            </div>
+                        </div>
+
+                        <!-- Practical -->
+                        <div class="comp-config-item">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasPractical" id="addHasPractical" value="true" onchange="toggleCompInput('addHasPractical', 'addPracticalMax')" />
+                                <strong>Practical Exam</strong>
+                            </label>
+                            <div class="comp-max-input-wrap">
+                                <span class="max-label">Max Marks:</span>
+                                <input type="number" name="practicalMax" id="addPracticalMax" class="form-control comp-max-num" value="50" min="1" max="100" disabled />
+                            </div>
+                        </div>
+
+                        <!-- Project (for Semester 6 or elective) -->
+                        <div class="comp-config-item">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasProject" id="addHasProject" value="true" onchange="toggleCompInput('addHasProject', 'addProjectMax')" />
+                                <strong>Project / Dissertation</strong>
+                            </label>
+                            <div class="comp-max-input-wrap">
+                                <span class="max-label">Max Marks:</span>
+                                <input type="number" name="projectMax" id="addProjectMax" class="form-control comp-max-num" value="100" min="1" max="200" disabled />
+                            </div>
+                        </div>
+
+                        <!-- Viva -->
+                        <div class="comp-config-item">
+                            <label class="comp-checkbox-wrap">
+                                <input type="checkbox" name="hasViva" id="addHasViva" value="true" onchange="toggleCompInput('addHasViva', 'addVivaMax')" />
+                                <strong>Viva Voce</strong>
+                            </label>
+                            <div class="comp-max-input-wrap">
+                                <span class="max-label">Max Marks:</span>
+                                <input type="number" name="vivaMax" id="addVivaMax" class="form-control comp-max-num" value="50" min="1" max="100" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeAddSubjectModal()">Cancel</button>
+                <button type="submit" class="btn-submit">💾 Save Subject</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: EDIT SUBJECT -->
+<div id="editSubjectModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 class="modal-title">✏️ Edit Subject Details</h3>
+            <button type="button" class="btn-close-modal" onclick="closeEditSubjectModal()">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="EditSubject">
+            <input type="hidden" name="subjectId" id="editSubjectId" />
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required">Subject Name</label>
+                    <input type="text" name="subjectName" id="editSubjectName" class="form-control" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Subject Code</label>
+                        <input type="text" name="subjectCode" id="editSubjectCode" class="form-control" required />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label required">Credits</label>
+                        <input type="number" step="0.5" min="0.5" max="10" name="credits" id="editCredits" class="form-control" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label required">Semester</label>
+                        <select name="semester" id="editSemester" class="form-control" required>
+                            @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.SubjectsAdmin.IndexModel.SemesterList)
+                            {
+                                <!option value="@sem">@sem</!option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label required">Status</label>
+                        <select name="status" id="editStatus" class="form-control" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeEditSubjectModal()">Cancel</button>
+                <button type="submit" class="btn-submit">💾 Update Subject</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: CONFIGURE COMPONENTS -->
+<div id="componentsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box modal-lg">
+        <div class="modal-header">
+            <h3 class="modal-title">⚙️ Configure Marks Components</h3>
+            <button type="button" class="btn-close-modal" onclick="closeComponentsModal()">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="ConfigureComponents" onsubmit="return validateCompForm()">
+            <input type="hidden" name="subjectId" id="compSubjectId" />
+            <div class="modal-body">
+                <div class="comp-modal-info">
+                    Configuring components for: <strong id="compSubjectTitle" class="text-navy"></strong>
+                </div>
+                <p class="comp-section-note">Check which components apply to this subject and set maximum marks. Internal assessment is strictly maximum 30.</p>
+
+                <div class="comp-config-grid">
+                    <!-- Internal -->
+                    <div class="comp-config-item">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" name="hasInternal" id="cfgHasInternal" value="true" onchange="toggleCompInput('cfgHasInternal', 'cfgInternalMax')" />
+                            <strong>Internal Assessment</strong>
+                        </label>
+                        <div class="comp-max-input-wrap">
+                            <span class="max-label">Max Marks (Max 30):</span>
+                            <input type="number" name="internalMax" id="cfgInternalMax" class="form-control comp-max-num" min="1" max="30" />
+                        </div>
+                    </div>
+
+                    <!-- Theory -->
+                    <div class="comp-config-item">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" name="hasTheory" id="cfgHasTheory" value="true" onchange="toggleCompInput('cfgHasTheory', 'cfgTheoryMax')" />
+                            <strong>Theory Exam</strong>
+                        </label>
+                        <div class="comp-max-input-wrap">
+                            <span class="max-label">Max Marks:</span>
+                            <input type="number" name="theoryMax" id="cfgTheoryMax" class="form-control comp-max-num" min="1" max="100" />
+                        </div>
+                    </div>
+
+                    <!-- Practical -->
+                    <div class="comp-config-item">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" name="hasPractical" id="cfgHasPractical" value="true" onchange="toggleCompInput('cfgHasPractical', 'cfgPracticalMax')" />
+                            <strong>Practical Exam</strong>
+                        </label>
+                        <div class="comp-max-input-wrap">
+                            <span class="max-label">Max Marks:</span>
+                            <input type="number" name="practicalMax" id="cfgPracticalMax" class="form-control comp-max-num" min="1" max="100" />
+                        </div>
+                    </div>
+
+                    <!-- Project -->
+                    <div class="comp-config-item">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" name="hasProject" id="cfgHasProject" value="true" onchange="toggleCompInput('cfgHasProject', 'cfgProjectMax')" />
+                            <strong>Project / Dissertation</strong>
+                        </label>
+                        <div class="comp-max-input-wrap">
+                            <span class="max-label">Max Marks:</span>
+                            <input type="number" name="projectMax" id="cfgProjectMax" class="form-control comp-max-num" min="1" max="200" />
+                        </div>
+                    </div>
+
+                    <!-- Viva -->
+                    <div class="comp-config-item">
+                        <label class="comp-checkbox-wrap">
+                            <input type="checkbox" name="hasViva" id="cfgHasViva" value="true" onchange="toggleCompInput('cfgHasViva', 'cfgVivaMax')" />
+                            <strong>Viva Voce</strong>
+                        </label>
+                        <div class="comp-max-input-wrap">
+                            <span class="max-label">Max Marks:</span>
+                            <input type="number" name="vivaMax" id="cfgVivaMax" class="form-control comp-max-num" min="1" max="100" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeComponentsModal()">Cancel</button>
+                <button type="submit" class="btn-submit">💾 Save Components</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleCompInput(cbId, inputId) {
+            const cb = document.getElementById(cbId);
+            const input = document.getElementById(inputId);
+            if (cb && input) {
+                input.disabled = !cb.checked;
+            }
+        }
+
+        function openAddSubjectModal() {
+            document.getElementById('addSubjectModal').style.display = 'flex';
+        }
+        function closeAddSubjectModal() {
+            document.getElementById('addSubjectModal').style.display = 'none';
+        }
+
+        function openEditSubjectModal(id, name, code, sem, credits, status) {
+            document.getElementById('editSubjectId').value = id;
+            document.getElementById('editSubjectName').value = name.trim();
+            document.getElementById('editSubjectCode').value = code.trim();
+            document.getElementById('editSemester').value = sem;
+            document.getElementById('editCredits').value = credits;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editSubjectModal').style.display = 'flex';
+        }
+        function closeEditSubjectModal() {
+            document.getElementById('editSubjectModal').style.display = 'none';
+        }
+
+        function openComponentsModal(id, title, hasInt, intMax, hasTh, thMax, hasPr, prMax, hasProj, projMax, hasViva, vivaMax) {
+            document.getElementById('compSubjectId').value = id;
+            document.getElementById('compSubjectTitle').innerText = title;
+
+            // Internal
+            const cbInt = document.getElementById('cfgHasInternal');
+            const inInt = document.getElementById('cfgInternalMax');
+            cbInt.checked = hasInt;
+            inInt.value = intMax > 0 ? intMax : 30;
+            inInt.disabled = !hasInt;
+
+            // Theory
+            const cbTh = document.getElementById('cfgHasTheory');
+            const inTh = document.getElementById('cfgTheoryMax');
+            cbTh.checked = hasTh;
+            inTh.value = thMax > 0 ? thMax : 70;
+            inTh.disabled = !hasTh;
+
+            // Practical
+            const cbPr = document.getElementById('cfgHasPractical');
+            const inPr = document.getElementById('cfgPracticalMax');
+            cbPr.checked = hasPr;
+            inPr.value = prMax > 0 ? prMax : 50;
+            inPr.disabled = !hasPr;
+
+            // Project
+            const cbProj = document.getElementById('cfgHasProject');
+            const inProj = document.getElementById('cfgProjectMax');
+            cbProj.checked = hasProj;
+            inProj.value = projMax > 0 ? projMax : 100;
+            inProj.disabled = !hasProj;
+
+            // Viva
+            const cbViva = document.getElementById('cfgHasViva');
+            const inViva = document.getElementById('cfgVivaMax');
+            cbViva.checked = hasViva;
+            inViva.value = vivaMax > 0 ? vivaMax : 50;
+            inViva.disabled = !hasViva;
+
+            document.getElementById('componentsModal').style.display = 'flex';
+        }
+        function closeComponentsModal() {
+            document.getElementById('componentsModal').style.display = 'none';
+        }
+
+        function validateAddForm() {
+            const cbInt = document.getElementById('addHasInternal');
+            const inInt = document.getElementById('addInternalMax');
+            if (cbInt.checked) {
+                const val = parseFloat(inInt.value);
+                if (val <= 0 || val > 30) {
+                    alert('Internal assessment maximum marks must be between 1 and 30.');
+                    inInt.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateCompForm() {
+            const cbInt = document.getElementById('cfgHasInternal');
+            const inInt = document.getElementById('cfgInternalMax');
+            if (cbInt.checked) {
+                const val = parseFloat(inInt.value);
+                if (val <= 0 || val > 30) {
+                    alert('Internal assessment maximum marks must be between 1 and 30.');
+                    inInt.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeAddSubjectModal();
+                closeEditSubjectModal();
+                closeComponentsModal();
+            }
+        });
+    </script>
+}

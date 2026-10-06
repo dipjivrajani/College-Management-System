@@ -1,74 +1,287 @@
 @page "/Admin/Courses"
 @model CollegeManagementSystem.Pages.Admin.Courses.IndexModel
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Science Programs - Admin";
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Course Management";
+    ViewData["HeaderTitle"] = "Course Management";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-courses.css" asp-append-version="true" />
 }
 
-<div class="admin-wrapper">
-    <!-- Top Admin Header -->
-    <section class="admin-top-bar">
-        <div class="container admin-nav-flex">
-            <div class="admin-brand-info">
-                <span class="admin-badge">ADMIN PORTAL</span>
-                <h1 class="admin-title">Science Academic Disciplines</h1>
-            </div>
-            <div class="admin-quick-links">
-                <a href="/Admin" class="admin-nav-item">&larr; Dashboard</a>
-                <a href="/Admin/Registrations" class="admin-nav-item">Registrations</a>
-                <a href="/Admin/Inquiries" class="admin-nav-item">Inquiries</a>
-                <a href="/login" class="admin-nav-item admin-logout">Logout</a>
-            </div>
+<div class="courses-admin-container">
+    <!-- Notifications -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="course-alert alert-success" role="alert">
+            <span class="alert-icon">✓</span>
+            <span>@Model.SuccessMessage</span>
         </div>
-    </section>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="course-alert alert-danger" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
 
-    <div class="container admin-main-body">
-        <div class="admin-card-panel">
-            <div class="panel-header">
-                <div>
-                    <h2 class="panel-title">Institutional B.Sc. Programs (@Model.Courses.Count)</h2>
-                    <p class="panel-desc">All undergraduate programs sorted alphabetically (A to Z).</p>
-                </div>
-                <a href="/Programs" target="_blank" class="btn btn-sm btn-secondary">View Public Programs Page &rarr;</a>
+    <!-- Header Banner -->
+    <div class="course-header-banner">
+        <div>
+            <h2 class="course-heading">Course Management</h2>
+            <p class="course-subheading">Manage B.Sc. programs, departments, semesters and academic subjects.</p>
+        </div>
+        <div class="header-action-wrap">
+            <button type="button" class="btn-add-course" onclick="openAddCourseModal()">
+                <span>➕</span> Add Course
+            </button>
+        </div>
+    </div>
+
+    <!-- Academic Structure Navigation Flow -->
+    <div class="academic-flow-card">
+        <span class="flow-label">Institutional Academic Hierarchy:</span>
+        <div class="flow-steps">
+            <span class="flow-step current">1. Courses</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">2. Departments</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">3. Semesters (1-6)</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">4. Subjects &amp; Credits</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">5. Components &amp; Marks</span>
+        </div>
+    </div>
+
+    <!-- Course Table Card -->
+    <div class="card courses-table-card">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">Academic Programs Directory (@Model.CoursesList.Count)</h3>
+                <p class="card-subtitle">Undergraduate B.Sc. degree programs sorted alphabetically (A to Z).</p>
             </div>
+            <span class="course-badge-count">@Model.CoursesList.Count Programs Configured</span>
+        </div>
 
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
+        <div class="table-responsive">
+            <table class="courses-table">
+                <thead>
+                    <tr>
+                        <th style="width: 85px;">Code</th>
+                        <th>Course Name</th>
+                        <th style="width: 140px;">Department</th>
+                        <th style="width: 160px;">Duration</th>
+                        <th style="width: 100px; text-align: center;">Semesters</th>
+                        <th style="width: 120px; text-align: center;">Subjects</th>
+                        <th style="width: 90px; text-align: center;">Status</th>
+                        <th style="width: 220px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.CoursesList)
+                    {
                         <tr>
-                            <th>Code</th>
-                            <th>Program Title</th>
-                            <th>Discipline Category</th>
-                            <th>Duration</th>
-                            <th>Fees Status</th>
-                            <th>Faculty Status</th>
-                            <th>Public Link</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var c in Model.Courses)
-                        {
-                            <tr>
-                                <td><strong class="course-code-tag">@c.CourseCode</strong></td>
-                                <td><strong>@c.CourseName</strong></td>
-                                <td><span class="type-badge">@c.Category</span></td>
-                                <td>@c.Duration</td>
-                                <td><span class="placeholder-tag">@c.Fees</span></td>
-                                <td><span class="placeholder-tag">@c.Faculty</span></td>
-                                <td>
-                                    <a href="/Programs/Details?course=@c.CourseCode" target="_blank" class="view-details-link">
-                                        View Details &rarr;
+                            <td>
+                                <span class="code-pill">@c.CourseCode</span>
+                            </td>
+                            <td>
+                                <strong class="course-name-text">@c.CourseName</strong>
+                                <span class="course-cat-tag">@c.Category</span>
+                            </td>
+                            <td>
+                                <span class="dept-name">@c.Department</span>
+                            </td>
+                            <td>@c.Duration</td>
+                            <td style="text-align: center;">
+                                <span class="sem-count-badge">@c.NumberOfSemesters Sem</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="/Admin/Courses/Subjects?course=@Uri.EscapeDataString(c.CourseName)" class="sub-count-link" title="Click to manage subjects">
+                                    📚 @c.TotalSubjectsCount Subjects
+                                </a>
+                            </td>
+                            <td style="text-align: center;">
+                                @if (c.IsActive)
+                                {
+                                    <span class="status-pill pill-active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="status-pill pill-inactive">Inactive</span>
+                                }
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="action-btn-row">
+                                    <button type="button" class="btn-action-view" 
+                                            onclick="openViewModal('@c.CourseCode', '@c.CourseName', '@c.Department', '@c.Category', '@c.Duration', '@c.Description.Replace("'", "\\'")')"
+                                            title="View Details">
+                                        👁️ View
+                                    </button>
+                                    <a href="/Admin/Courses/Subjects?course=@Uri.EscapeDataString(c.CourseName)" class="btn-action-subjects" title="Manage Subjects">
+                                        📖 Subjects
                                     </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                    <button type="button" class="btn-action-edit"
+                                            onclick="openEditModal(@c.CourseId, '@c.CourseCode', '@c.CourseName', '@c.Duration', '@c.Description.Replace("'", "\\'")')"
+                                            title="Edit Course">
+                                        ✏️
+                                    </button>
+                                    <form method="post" asp-page-handler="ToggleStatus" style="display:inline;">
+                                        <input type="hidden" name="courseId" value="@c.CourseId" />
+                                        <button type="submit" class="btn-action-toggle @(c.IsActive ? "toggle-deactivate" : "toggle-activate")" 
+                                                title="@(c.IsActive ? "Deactivate Course" : "Activate Course")">
+                                            @(c.IsActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<!-- ADD COURSE MODAL -->
+<div id="addCourseModal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h4>Add New Academic Course</h4>
+            <button type="button" class="modal-close" onclick="closeAddCourseModal()">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="AddCourse">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="courseCode">Course Code <span class="req-star">*</span></label>
+                    <input type="text" id="courseCode" name="courseCode" class="form-control" placeholder="e.g. BOT, CHM, CSC" maxlength="10" required />
+                </div>
+                <div class="form-group">
+                    <label for="courseName">Course Title <span class="req-star">*</span></label>
+                    <input type="text" id="courseName" name="courseName" class="form-control" placeholder="e.g. B.Sc. Biotechnology" required />
+                </div>
+                <div class="form-group">
+                    <label for="category">Discipline Category</label>
+                    <input type="text" id="category" name="category" class="form-control" value="Science Disciplines" />
+                </div>
+                <div class="form-group">
+                    <label for="description">Course Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter course academic description..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeAddCourseModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Save Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- VIEW COURSE MODAL -->
+<div id="viewCourseModal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h4 id="vCourseTitle">Course Details</h4>
+            <button type="button" class="modal-close" onclick="closeViewModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="view-detail-card">
+                <div><strong>Course Code:</strong> <span id="vCourseCode" class="code-pill"></span></div>
+                <div><strong>Department:</strong> <span id="vDepartment"></span></div>
+                <div><strong>Category:</strong> <span id="vCategory"></span></div>
+                <div><strong>Duration:</strong> <span id="vDuration"></span> (6 Semesters)</div>
+                <div><strong>Fee Structure:</strong> <em>Details will be updated by the institute.</em></div>
+                <div><strong>Faculty Details:</strong> <em>Details will be updated by the institute.</em></div>
+                <div style="margin-top: 0.5rem;">
+                    <strong>Academic Overview:</strong>
+                    <p id="vDescription" style="margin: 0.25rem 0 0 0; color: #475569; font-size: 0.88rem; line-height: 1.4;"></p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeViewModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT COURSE MODAL -->
+<div id="editCourseModal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h4 id="editCourseHeader">Edit Course</h4>
+            <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="EditCourse">
+            <input type="hidden" id="editCourseId" name="editCourseId" value="" />
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Course Title (Locked)</label>
+                    <input type="text" id="editCourseName" class="form-control" readonly style="background: #f1f5f9;" />
+                </div>
+                <div class="form-group">
+                    <label for="editDuration">Duration</label>
+                    <input type="text" id="editDuration" name="editDuration" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" name="editDescription" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="editIsActive" id="editIsActive" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-modal-save">Update Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openAddCourseModal() {
+            document.getElementById("addCourseModal").style.display = "flex";
+        }
+        function closeAddCourseModal() {
+            document.getElementById("addCourseModal").style.display = "none";
+        }
+        function openViewModal(code, name, dept, cat, dur, desc) {
+            document.getElementById("vCourseTitle").textContent = name;
+            document.getElementById("vCourseCode").textContent = code;
+            document.getElementById("vDepartment").textContent = dept;
+            document.getElementById("vCategory").textContent = cat;
+            document.getElementById("vDuration").textContent = dur;
+            document.getElementById("vDescription").textContent = desc;
+            document.getElementById("viewCourseModal").style.display = "flex";
+        }
+        function closeViewModal() {
+            document.getElementById("viewCourseModal").style.display = "none";
+        }
+        function openEditModal(id, code, name, dur, desc) {
+            document.getElementById("editCourseId").value = id;
+            document.getElementById("editCourseHeader").textContent = "Edit " + name;
+            document.getElementById("editCourseName").value = name + " (" + code + ")";
+            document.getElementById("editDuration").value = dur;
+            document.getElementById("editDescription").value = desc;
+            document.getElementById("editCourseModal").style.display = "flex";
+        }
+        function closeEditModal() {
+            document.getElementById("editCourseModal").style.display = "none";
+        }
+        window.onclick = function (e) {
+            var m1 = document.getElementById("addCourseModal");
+            var m2 = document.getElementById("viewCourseModal");
+            var m3 = document.getElementById("editCourseModal");
+            if (e.target === m1) m1.style.display = "none";
+            if (e.target === m2) m2.style.display = "none";
+            if (e.target === m3) m3.style.display = "none";
+        };
+    </script>
+}

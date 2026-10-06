@@ -1,0 +1,466 @@
+@page "/Admin/Marks"
+@model CollegeManagementSystem.Pages.AdminPortal.MarksAdmin.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Academic Marks & Results";
+    ViewData["HeaderTitle"] = "Academic Marks & Results Management";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-marks.css" asp-append-version="true" />
+}
+
+<div class="marks-container">
+    <!-- Notifications -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="marks-alert alert-success" role="alert">
+            <span>✓</span>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="marks-alert alert-danger" role="alert">
+            <span>⚠️</span>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    @if (Model.SelectedStudent == null)
+    {
+        <!-- ======================================================== -->
+        <!-- STAGE 1: DIRECTORY MODE — FILTER & STUDENT LIST (PART 15) -->
+        <!-- ======================================================== -->
+        <div class="marks-header-banner">
+            <div>
+                <h2 class="marks-title">Academic Marks &amp; Results</h2>
+                <p class="marks-subtitle">Filter students by Academic Year, Department/Course, and Semester to manage subject marks and examination results.</p>
+            </div>
+            <div class="banner-actions">
+                <a href="/Admin/Syllabus" class="btn-secondary">
+                    <span>📚</span> View Syllabus
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="marks-filter-card">
+            <form method="get" class="filter-form-row">
+                <div class="filter-col">
+                    <label for="filterAcademicYear">Academic Year</label>
+                    <select id="filterAcademicYear" name="selectedAcademicYear" class="form-ctrl">
+                        @foreach (var ay in Model.AcademicYearsList)
+                        {
+                            <option value="@ay.YearCode" selected="@(ay.YearCode == Model.SelectedAcademicYear)">@ay.YearName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-col">
+                    <label for="filterCourse">Department / Course</label>
+                    <select id="filterCourse" name="selectedCourse" class="form-ctrl">
+                        @foreach (var c in CollegeManagementSystem.Pages.AdminPortal.MarksAdmin.IndexModel.CourseList)
+                        {
+                            <option value="@c" selected="@(c == Model.SelectedCourse)">@c</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-col">
+                    <label for="filterSemester">Semester</label>
+                    <select id="filterSemester" name="selectedSemester" class="form-ctrl">
+                        @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.MarksAdmin.IndexModel.SemesterList)
+                        {
+                            <option value="@sem" selected="@(sem == Model.SelectedSemester)">@sem</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-col">
+                    <label for="filterSearch">Search Student</label>
+                    <input type="text" id="filterSearch" name="searchTerm" class="form-ctrl" placeholder="Enrollment or Name..." value="@Model.SearchTerm" />
+                </div>
+
+                <button type="submit" class="btn-navy" style="height: 38px;">Load Students</button>
+            </form>
+        </div>
+
+        <!-- Students List Table -->
+        <div class="marks-table-card">
+            <div class="table-header-bar">
+                <h3 class="table-title">@Model.SelectedCourse — @Model.SelectedSemester</h3>
+                <span style="font-size: 0.85rem; color: #627d98;">@Model.StudentsList.Count Students Found</span>
+            </div>
+
+            @if (Model.StudentsList.Count == 0)
+            {
+                <div style="padding: 3rem 1.5rem; text-align: center; color: #627d98;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👨‍🎓</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: #102a43;">No Students Found</div>
+                    <div style="font-size: 0.88rem; margin-top: 0.25rem;">
+                        No students enrolled in <strong>@Model.SelectedCourse</strong> (@Model.SelectedSemester) matching current filters.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div style="overflow-x: auto; width: 100%;">
+                    <table class="marks-data-table">
+                        <thead>
+                            <tr>
+                                <th>Enrollment No</th>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th>Admission Year</th>
+                                <th>Semester</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var std in Model.StudentsList)
+                            {
+                                <tr>
+                                    <td><strong style="font-family: monospace; color: #102a43;">@std.StudentId</strong></td>
+                                    <td style="font-weight: 600;">@std.FullName</td>
+                                    <td>@std.Course</td>
+                                    <td>@std.AdmissionYear</td>
+                                    <td><span style="font-weight: 600; color: #334e68;">@std.Semester</span></td>
+                                    <td>
+                                        <span class="badge-status @(std.Status == "Active" ? "badge-pass" : "badge-incomplete")">
+                                            @std.Status
+                                        </span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a href="/Admin/Marks?selectedAcademicYear=@Model.SelectedAcademicYear&selectedCourse=@Uri.EscapeDataString(std.Course)&selectedSemester=@Uri.EscapeDataString(std.Semester)&selectedStudentId=@std.StudentId&activeTabSemester=@Uri.EscapeDataString(std.Semester)"
+                                           class="btn-navy" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                                            <span>📊</span> Open Result
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- ======================================================== -->
+        <!-- STAGE 2: STUDENT ACADEMIC RECORD & SINGLE-SEMESTER EDITOR -->
+        <!-- ======================================================== -->
+        
+        <!-- Header Banner with Navigation -->
+        <div class="marks-header-banner">
+            <div>
+                <a href="/Admin/Marks?selectedAcademicYear=@Model.SelectedAcademicYear&selectedCourse=@Uri.EscapeDataString(Model.SelectedStudent.Course)&selectedSemester=@Uri.EscapeDataString(Model.ActiveTabSemester)"
+                   class="btn-secondary" style="font-size: 0.82rem; margin-bottom: 0.5rem; display: inline-flex;">
+                    <span>&larr;</span> Back to Student Directory
+                </a>
+                <h2 class="marks-title">Student Academic Record</h2>
+                <p class="marks-subtitle">Detailed semester subjects, marks entry, and evaluation report.</p>
+            </div>
+            <div class="banner-actions">
+                <a href="/Admin/Marks/Marksheet?studentId=@Model.SelectedStudent.StudentId&semester=@Uri.EscapeDataString(Model.ActiveTabSemester)&attempt=@Model.SelectedAttempt"
+                   target="_blank" class="btn-secondary">
+                    <span>🖨️</span> Print Marksheet
+                </a>
+            </div>
+        </div>
+
+        <!-- Student Profile Summary Card (PART 16) -->
+        <div class="student-profile-summary-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="margin: 0; font-size: 1.15rem; color: #102a43; font-weight: 700;">
+                    @Model.SelectedStudent.FullName
+                </h3>
+                <span class="badge-status @(Model.SelectedStudent.Status == "Active" ? "badge-pass" : "badge-incomplete")">
+                    @Model.SelectedStudent.Status
+                </span>
+            </div>
+
+            <div class="student-meta-grid">
+                <div class="meta-item">
+                    <span class="meta-lbl">Enrollment Number</span>
+                    <span class="meta-val" style="font-family: monospace;">@Model.SelectedStudent.StudentId</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-lbl">Course / Program</span>
+                    <span class="meta-val">@Model.SelectedStudent.Course</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-lbl">Department</span>
+                    <span class="meta-val">@Model.SelectedStudent.Department</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-lbl">Admission Year</span>
+                    <span class="meta-val">@Model.SelectedStudent.AdmissionYear</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-lbl">Current Enrolled Semester</span>
+                    <span class="meta-val">@Model.SelectedStudent.Semester</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-lbl">Overall Program CGPA</span>
+                    <span class="meta-val" style="color: #0369a1;">
+                        @(Model.OverallAcademicResult?.CGPA.HasValue == true ? Model.OverallAcademicResult.CGPA.Value.ToString("0.00") : "In Progress")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Academic Progress Across Semesters (PART 21) -->
+        @if (Model.OverallAcademicResult != null)
+        {
+            <div class="overall-progress-strip">
+                @foreach (var semName in CollegeManagementSystem.Pages.AdminPortal.MarksAdmin.IndexModel.SemesterList)
+                {
+                    var semRes = Model.OverallAcademicResult.SemesterResults.ContainsKey(semName) ? Model.OverallAcademicResult.SemesterResults[semName] : null;
+                    bool isCurrentTab = semName == Model.ActiveTabSemester;
+                    <div class="overall-sem-box @(isCurrentTab ? "active" : "")">
+                        <span class="overall-sem-title">@semName</span>
+                        <span class="overall-sem-sgpa">
+                            @(semRes?.SGPA.HasValue == true ? semRes.SGPA.Value.ToString("0.00") : "--")
+                        </span>
+                        <span class="overall-sem-status" style="color: @(semRes?.ResultStatus == "PASS" ? "#15803d" : (semRes?.ResultStatus == "FAIL" ? "#b91c1c" : "#627d98"));">
+                            @(semRes?.ResultStatus ?? "Not Done")
+                        </span>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Single-Semester Picker Navigation (PART 1 & 16) -->
+        <div class="semester-picker-card">
+            <span class="picker-label">Select Semester:</span>
+            <div class="sem-pills-row">
+                @foreach (var sem in CollegeManagementSystem.Pages.AdminPortal.MarksAdmin.IndexModel.SemesterList)
+                {
+                    <a href="/Admin/Marks?selectedAcademicYear=@Model.SelectedAcademicYear&selectedCourse=@Uri.EscapeDataString(Model.SelectedStudent.Course)&selectedSemester=@Uri.EscapeDataString(sem)&selectedStudentId=@Model.SelectedStudent.StudentId&activeTabSemester=@Uri.EscapeDataString(sem)"
+                       class="sem-pill-btn @(sem == Model.ActiveTabSemester ? "active" : "")">
+                        @sem
+                    </a>
+                }
+            </div>
+        </div>
+
+        <!-- Attempt Strip (PART 22 & 23) -->
+        <div class="attempt-strip">
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <strong style="font-size: 0.88rem; color: #102a43;">Exam Attempts:</strong>
+                <div class="attempt-tabs">
+                    @if (Model.StudentAttemptsList.Count > 0)
+                    {
+                        @foreach (var att in Model.StudentAttemptsList)
+                        {
+                            <a href="/Admin/Marks?selectedAcademicYear=@Model.SelectedAcademicYear&selectedCourse=@Uri.EscapeDataString(Model.SelectedStudent.Course)&selectedSemester=@Uri.EscapeDataString(Model.ActiveTabSemester)&selectedStudentId=@Model.SelectedStudent.StudentId&activeTabSemester=@Uri.EscapeDataString(Model.ActiveTabSemester)&selectedAttempt=@att.Attempt"
+                               class="attempt-tab @(att.Attempt == Model.SelectedAttempt ? "active" : "")">
+                                Attempt @att.Attempt (@att.ResultStatus)
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <span class="attempt-tab active">Attempt 1 (Regular)</span>
+                    }
+                </div>
+            </div>
+
+            <!-- New Attempt Button for Repeat / Backlog -->
+            <form method="post" asp-page-handler="CreateNewAttempt" style="margin: 0;">
+                <input type="hidden" name="studentId" value="@Model.SelectedStudent.StudentId" />
+                <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+                <input type="hidden" name="semester" value="@Model.ActiveTabSemester" />
+                <button type="submit" class="btn-secondary" style="font-size: 0.8rem; padding: 0.35rem 0.8rem;"
+                        title="Add repeat examination attempt if student had backlog">
+                    <span>➕</span> Record Repeat Attempt
+                </button>
+            </form>
+        </div>
+
+        <!-- Detailed Marks Form (Vertical Subject Cards - PART 29) -->
+        @if (Model.SemesterSubjects.Count == 0)
+        {
+            <div class="marks-table-card" style="padding: 2.5rem 1.5rem; text-align: center; color: #627d98;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+                <div style="font-weight: 700; font-size: 1.05rem; color: #102a43;">No Subjects in @Model.ActiveTabSemester</div>
+                <div style="font-size: 0.88rem; margin-top: 0.25rem;">
+                    No academic subjects have been configured for <strong>@Model.SelectedStudent.Course</strong> (@Model.ActiveTabSemester) in academic year <strong>@Model.SelectedAcademicYear</strong>.
+                </div>
+                <div style="margin-top: 1rem;">
+                    <a href="/Admin/Syllabus?selectedAcademicYear=@Model.SelectedAcademicYear&selectedCourse=@Uri.EscapeDataString(Model.SelectedStudent.Course)&selectedSemester=@Uri.EscapeDataString(Model.ActiveTabSemester)" class="btn-navy">
+                        Configure Subjects in Syllabus
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="SaveStudentMarks" id="marksEntryForm">
+                <input type="hidden" name="studentId" value="@Model.SelectedStudent.StudentId" />
+                <input type="hidden" name="academicYear" value="@Model.SelectedAcademicYear" />
+                <input type="hidden" name="semester" value="@Model.ActiveTabSemester" />
+                <input type="hidden" name="attempt" value="@Model.SelectedAttempt" />
+
+                <div class="subject-cards-list">
+                    @foreach (var sub in Model.SemesterSubjects)
+                    {
+                        var subResult = Model.CurrentSemesterResult?.Subjects.FirstOrDefault(s => s.SubjectId == sub.SubjectId);
+                        decimal subMax = sub.Components?.Sum(c => c.MaximumMarks) ?? 0;
+                        decimal subObt = subResult?.TotalObtained ?? 0;
+                        string grade = subResult?.Grade ?? "--";
+                        bool isPass = subResult?.IsPass ?? false;
+
+                        <div class="subject-card">
+                            <!-- Card Header -->
+                            <div class="subject-card-header">
+                                <h4 class="subject-card-title">
+                                    <span style="font-family: monospace; background: #e2e8f0; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.85rem;">
+                                        @sub.SubjectCode
+                                    </span>
+                                    <span>@sub.SubjectName</span>
+                                </h4>
+                                <div class="subject-card-badges">
+                                    <span class="badge-credit">Credits: @sub.Credits</span>
+                                    <span style="font-size: 0.8rem; color: #627d98;">Order #@sub.DisplayOrder</span>
+                                </div>
+                            </div>
+
+                            <!-- Card Body: ONLY configured components (PART 17 & 29) -->
+                            <div class="subject-components-body">
+                                @if (sub.Components == null || sub.Components.Count == 0)
+                                {
+                                    <div style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">
+                                        No evaluation components configured for this subject. Configure components in Syllabus.
+                                    </div>
+                                }
+                                else
+                                {
+                                    @foreach (var comp in sub.Components)
+                                    {
+                                        var markRecord = Model.StudentSemesterMarks.FirstOrDefault(m =>
+                                            m.SubjectId == sub.SubjectId &&
+                                            (m.ComponentType.Equals(comp.ComponentType, StringComparison.OrdinalIgnoreCase) ||
+                                             m.ExamType.Equals(comp.ComponentType, StringComparison.OrdinalIgnoreCase)));
+
+                                        decimal currentObtained = markRecord?.ObtainedMarks ?? 0;
+                                        string dateVal = markRecord?.ExamDate.HasValue == true ? markRecord.ExamDate.Value.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
+
+                                        <div class="component-entry-row">
+                                            <input type="hidden" name="subjectIds" value="@sub.SubjectId" />
+                                            <input type="hidden" name="componentTypes" value="@comp.ComponentType" />
+                                            <input type="hidden" name="maxMarksList" value="@comp.MaximumMarks" />
+
+                                            <div class="comp-label-block">
+                                                <span class="comp-name">@comp.ComponentType</span>
+                                                <span class="comp-limits">
+                                                    Max: <strong>@comp.MaximumMarks</strong> | Min Pass: <strong>@comp.PassingMarks</strong>
+                                                </span>
+                                            </div>
+
+                                            <div class="comp-input-group">
+                                                <label>Marks Obtained *</label>
+                                                <input type="number" step="0.5" min="0" max="@comp.MaximumMarks"
+                                                       name="obtainedMarksList"
+                                                       value="@currentObtained"
+                                                       class="marks-input"
+                                                       required
+                                                       placeholder="0 - @comp.MaximumMarks" />
+                                            </div>
+
+                                            <div class="comp-input-group">
+                                                <label>Exam Date</label>
+                                                <input type="date"
+                                                       name="examDatesList"
+                                                       value="@dateVal"
+                                                       class="form-ctrl"
+                                                       style="font-size: 0.84rem; padding: 0.4rem 0.6rem;" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <!-- Card Footer: Subtotals -->
+                            <div class="subject-card-footer">
+                                <div class="subject-subtotal-info">
+                                    <span class="subtotal-item">
+                                        Subject Total: <strong>@subObt / @subMax</strong>
+                                    </span>
+                                    <span class="subtotal-item">
+                                        Percentage: <strong>@(subMax > 0 ? (Math.Round(subObt / subMax * 100, 1)) : 0)%</strong>
+                                    </span>
+                                    <span class="subtotal-item">
+                                        Grade: <strong>@grade</strong>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="badge-status @(isPass ? "badge-pass" : (subMax > 0 && subObt > 0 ? "badge-fail" : "badge-incomplete"))">
+                                        @(isPass ? "PASS" : (subMax > 0 && subObt > 0 ? "FAIL" : "PENDING"))
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Semester Bottom Summary & Save Actions -->
+                <div class="semester-summary-bar" style="margin-top: 1.25rem;">
+                    <div class="summary-metrics-wrap">
+                        <div class="metric-box">
+                            <span class="metric-lbl">Total Credits</span>
+                            <span class="metric-val">@Model.CurrentSemesterResult?.TotalCredits</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-lbl">Total Marks</span>
+                            <span class="metric-val">@Model.CurrentSemesterResult?.TotalObtainedMarks / @Model.CurrentSemesterResult?.TotalMaxMarks</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-lbl">Semester SGPA</span>
+                            <span class="metric-val" style="color: #0369a1;">
+                                @(Model.CurrentSemesterResult?.SGPA.HasValue == true ? Model.CurrentSemesterResult.SGPA.Value.ToString("0.00") : "--")
+                            </span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-lbl">Semester Result</span>
+                            <span class="badge-status @(Model.CurrentSemesterResult?.ResultStatus == "PASS" ? "badge-pass" : (Model.CurrentSemesterResult?.ResultStatus == "FAIL" ? "badge-fail" : "badge-incomplete"))" style="margin-top: 0.3rem;">
+                                @Model.CurrentSemesterResult?.ResultStatus
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <a href="/Admin/Marks/Marksheet?studentId=@Model.SelectedStudent.StudentId&semester=@Uri.EscapeDataString(Model.ActiveTabSemester)&attempt=@Model.SelectedAttempt"
+                           target="_blank" class="btn-secondary">
+                            <span>🖨️</span> Marksheet
+                        </a>
+                        <button type="submit" class="btn-navy" style="padding: 0.7rem 1.75rem; font-size: 0.95rem;">
+                            <span>💾</span> Save Marks
+                        </button>
+                    </div>
+                </div>
+            </form>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        // Real-time SignalR listener for Marks Updates (PART 34)
+        if (typeof signalR !== 'undefined') {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/collegeHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("MarksUpdated", function (info) {
+                console.log("Marks updated event received:", info);
+            });
+
+            connection.start().catch(err => console.error("SignalR Connection Error: ", err));
+        }
+    </script>
+}

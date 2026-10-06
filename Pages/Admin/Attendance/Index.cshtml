@@ -1,0 +1,441 @@
+@page "/Admin/Attendance"
+@model CollegeManagementSystem.Pages.AdminPortal.AttendanceAdmin.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Attendance Management";
+    ViewData["HeaderTitle"] = "Attendance Management";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-attendance.css" asp-append-version="true" />
+}
+
+<div class="attendance-container">
+    <!-- Action Notifications -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="attendance-alert alert-success" role="alert">
+            <span class="alert-icon">✓</span>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="attendance-alert alert-danger" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <!-- TAB SWITCHER -->
+    <div class="attendance-tabs-bar">
+        <a href="?activeTab=mark&department=@Model.SelectedDepartment&course=@Model.SelectedCourse&semester=@Model.SelectedSemester&markDate=@Model.MarkDate" 
+           class="tab-btn @(Model.ActiveTab == "mark" ? "active" : "")">
+            <span class="tab-icon">📝</span> Mark Attendance
+        </a>
+        <a href="?activeTab=history" 
+           class="tab-btn @(Model.ActiveTab == "history" ? "active" : "")">
+            <span class="tab-icon">📊</span> Attendance History
+        </a>
+    </div>
+
+    @if (Model.ActiveTab == "mark")
+    {
+        <!-- MARK ATTENDANCE VIEW -->
+        <div class="card attendance-card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Mark Daily Attendance</h3>
+                    <p class="card-subtitle">Select department, course, semester and date to record or update attendance.</p>
+                </div>
+                <div class="date-display-badge">
+                    <span>Date: <strong>@DateTime.Parse(Model.MarkDate).ToString("dd MMM yyyy")</strong></span>
+                </div>
+            </div>
+
+            <!-- Filter Controls Form -->
+            <form method="get" class="attendance-filter-form" id="filterForm">
+                <input type="hidden" name="activeTab" value="mark" />
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label for="selDept">Department</label>
+                        <select id="selDept" name="department" class="form-control" onchange="updateCourseAndSubmit()">
+                            @foreach (var d in Model.Departments)
+                            {
+                                <option value="@d" selected="@(Model.SelectedDepartment == d)">@d</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="selCourse">Course</label>
+                        <select id="selCourse" name="course" class="form-control" onchange="document.getElementById('filterForm').submit()">
+                            @foreach (var kvp in Model.DepartmentToCourseMap)
+                            {
+                                <option value="@kvp.Value" selected="@(Model.SelectedCourse == kvp.Value)">@kvp.Value</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="selSem">Semester</label>
+                        <select id="selSem" name="semester" class="form-control" onchange="document.getElementById('filterForm').submit()">
+                            @foreach (var sem in Model.Semesters)
+                            {
+                                <option value="@sem" selected="@(Model.SelectedSemester == sem)">@sem</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="markDate">Attendance Date <span class="req-star">*</span></label>
+                        <input type="date" id="markDate" name="markDate" value="@Model.MarkDate" class="form-control" required onchange="document.getElementById('filterForm').submit()" />
+                    </div>
+                </div>
+            </form>
+
+            <!-- Students Marking List Form -->
+            <form method="post" asp-page-handler="SaveAttendance" class="attendance-sheet-form">
+                <input type="hidden" name="department" value="@Model.SelectedDepartment" />
+                <input type="hidden" name="course" value="@Model.SelectedCourse" />
+                <input type="hidden" name="semester" value="@Model.SelectedSemester" />
+                <input type="hidden" name="markDate" value="@Model.MarkDate" />
+
+                <div class="sheet-toolbar">
+                    <div class="toolbar-info">
+                        <span class="badge-total">@Model.StudentsToMark.Count Students Found</span>
+                        @if (Model.StudentsToMark.Any(s => s.IsAlreadyMarked))
+                        {
+                            <span class="badge-update-notice">ℹ️ Attendance already recorded for this date. Saving will update existing records.</span>
+                        }
+                    </div>
+                    @if (Model.StudentsToMark.Count > 0)
+                    {
+                        <div class="quick-mark-actions">
+                            <button type="button" class="btn-quick" onclick="markAll('Present')">Mark All Present</button>
+                            <button type="button" class="btn-quick btn-quick-absent" onclick="markAll('Absent')">Mark All Absent</button>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.StudentsToMark.Count == 0)
+                {
+                    <div class="empty-state-box">
+                        <span class="empty-icon">👥</span>
+                        <h4>No Active Students Found</h4>
+                        <p>No active students are currently registered in <strong>@Model.SelectedCourse</strong> (@Model.SelectedSemester).</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">#</th>
+                                    <th style="width: 170px;">Enrollment No</th>
+                                    <th>Student Name</th>
+                                    <th style="width: 140px;">Semester</th>
+                                    <th style="width: 220px; text-align: center;">Attendance Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.StudentsToMark.Count; i++)
+                                {
+                                    var student = Model.StudentsToMark[i];
+                                    <tr>
+                                        <td class="col-index">@(i + 1)</td>
+                                        <td>
+                                            <span class="student-id-badge">@student.StudentId</span>
+                                            <input type="hidden" name="studentIds" value="@student.StudentId" />
+                                        </td>
+                                        <td>
+                                            <strong class="student-name">@student.FullName</strong>
+                                            @if (student.IsAlreadyMarked)
+                                            {
+                                                <span class="status-indicator-tag" title="Previously marked">Recorded</span>
+                                            }
+                                        </td>
+                                        <td>@student.Semester</td>
+                                        <td class="status-cell">
+                                            <div class="status-radio-group">
+                                                <label class="radio-label radio-present">
+                                                    <input type="radio" name="statuses[@i]" value="Present" 
+                                                           checked="@(student.Status == "Present")" 
+                                                           id="status_p_@i" />
+                                                    <span class="radio-custom"></span> Present
+                                                </label>
+                                                <label class="radio-label radio-absent">
+                                                    <input type="radio" name="statuses[@i]" value="Absent" 
+                                                           checked="@(student.Status == "Absent")" 
+                                                           id="status_a_@i" />
+                                                    <span class="radio-custom"></span> Absent
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="sheet-footer">
+                        <p class="sheet-help-note">
+                            * System automatically prevents duplicates. Submitting for an existing date and student updates their attendance.
+                        </p>
+                        <button type="submit" class="btn-save-attendance">
+                            <span>💾</span> Save Attendance
+                        </button>
+                    </div>
+                }
+            </form>
+        </div>
+    }
+    else
+    {
+        <!-- ATTENDANCE HISTORY VIEW -->
+        <!-- Summary KPI Cards -->
+        <div class="stats-summary-grid">
+            <div class="summary-card card-navy">
+                <span class="summary-icon">📚</span>
+                <div class="summary-data">
+                    <span class="summary-val">@Model.TotalClassesCount</span>
+                    <span class="summary-label">Total Records</span>
+                </div>
+            </div>
+            <div class="summary-card card-green">
+                <span class="summary-icon">✅</span>
+                <div class="summary-data">
+                    <span class="summary-val">@Model.PresentCount</span>
+                    <span class="summary-label">Present Days</span>
+                </div>
+            </div>
+            <div class="summary-card card-red">
+                <span class="summary-icon">❌</span>
+                <div class="summary-data">
+                    <span class="summary-val">@Model.AbsentCount</span>
+                    <span class="summary-label">Absent Days</span>
+                </div>
+            </div>
+            <div class="summary-card card-gold">
+                <span class="summary-icon">📊</span>
+                <div class="summary-data">
+                    <span class="summary-val">@Model.AttendancePercentage%</span>
+                    <span class="summary-label">Overall Attendance</span>
+                </div>
+                <div class="summary-progress-bar">
+                    <div class="progress-fill" style="width: @Model.AttendancePercentage%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card history-card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Attendance History &amp; Records</h3>
+                    <p class="card-subtitle">Filter attendance history by department, course, semester, student and date range.</p>
+                </div>
+                <a href="?activeTab=history" class="btn-reset-filters">Reset Filters</a>
+            </div>
+
+            <!-- History Filters Form -->
+            <form method="get" class="history-filters-form">
+                <input type="hidden" name="activeTab" value="history" />
+                <div class="filters-row">
+                    <div class="filter-col">
+                        <label>Department</label>
+                        <select name="historyDepartment" class="form-control">
+                            <option value="">-- All Departments --</option>
+                            @foreach (var d in Model.Departments)
+                            {
+                                <option value="@d" selected="@(Model.HistoryDepartment == d)">@d</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="filter-col">
+                        <label>Course</label>
+                        <select name="historyCourse" class="form-control">
+                            <option value="">-- All Courses --</option>
+                            @foreach (var c in Model.DepartmentToCourseMap.Values)
+                            {
+                                <option value="@c" selected="@(Model.HistoryCourse == c)">@c</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="filter-col">
+                        <label>Semester</label>
+                        <select name="historySemester" class="form-control">
+                            <option value="">-- All Semesters --</option>
+                            @foreach (var sem in Model.Semesters)
+                            {
+                                <option value="@sem" selected="@(Model.HistorySemester == sem)">@sem</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="filter-col">
+                        <label>Student Name / ID</label>
+                        <input type="text" name="historyStudent" value="@Model.HistoryStudent" class="form-control" placeholder="Search student..." />
+                    </div>
+
+                    <div class="filter-col">
+                        <label>Date From</label>
+                        <input type="date" name="dateFrom" value="@Model.DateFrom" class="form-control" />
+                    </div>
+
+                    <div class="filter-col">
+                        <label>Date To</label>
+                        <input type="date" name="dateTo" value="@Model.DateTo" class="form-control" />
+                    </div>
+
+                    <div class="filter-col filter-action-col">
+                        <button type="submit" class="btn-filter-submit">🔍 Filter</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- History Table -->
+            @if (Model.HistoryRecords.Count == 0)
+            {
+                <div class="empty-state-box">
+                    <span class="empty-icon">📅</span>
+                    <h4>No Attendance Records Found</h4>
+                    <p>No records match your selected filter criteria. Try adjusting your filters or mark attendance first.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 110px;">Date</th>
+                                <th style="width: 150px;">Enrollment No</th>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th style="width: 110px;">Semester</th>
+                                <th style="width: 100px; text-align: center;">Status</th>
+                                <th style="width: 90px; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.HistoryRecords)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="history-date">@r.Date.ToString("dd/MM/yyyy")</span>
+                                    </td>
+                                    <td>
+                                        <span class="student-id-badge">@r.StudentId</span>
+                                    </td>
+                                    <td>
+                                        <strong class="student-name">@r.StudentName</strong>
+                                    </td>
+                                    <td>@r.Course</td>
+                                    <td>@r.Semester</td>
+                                    <td style="text-align: center;">
+                                        @if (r.Status.Equals("Present", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="status-pill pill-present">Present</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-pill pill-absent">Absent</span>
+                                        }
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn-delete-record" 
+                                                onclick="openDeleteAttendanceModal(@r.AttendanceId, '@r.StudentName', '@r.StudentId', '@r.Date.ToString("dd/MM/yyyy")', '@r.Status')"
+                                                title="Delete record">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="deleteModal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h4>Confirm Delete Attendance Record</h4>
+            <button type="button" class="modal-close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this attendance record?</p>
+            <div class="delete-details-card">
+                <div><strong>Student Name:</strong> <span id="delStudentName"></span></div>
+                <div><strong>Enrollment No:</strong> <span id="delStudentId"></span></div>
+                <div><strong>Date:</strong> <span id="delDate"></span></div>
+                <div><strong>Status:</strong> <span id="delStatus"></span></div>
+            </div>
+            <p class="delete-warning">⚠️ This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <form method="post" asp-page-handler="DeleteAttendance" style="display: inline;">
+                <input type="hidden" id="delAttendanceId" name="attendanceId" value="" />
+                <button type="submit" class="btn-modal-delete">Confirm Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var deptCourseMap = {
+            "Botany": "B.Sc. Botany",
+            "Chemistry": "B.Sc. Chemistry",
+            "Computer Science": "B.Sc. Computer Science",
+            "Forensic Science": "B.Sc. Forensic Science",
+            "Microbiology": "B.Sc. Microbiology",
+            "Physics": "B.Sc. Physics",
+            "Zoology": "B.Sc. Zoology"
+        };
+
+        function updateCourseAndSubmit() {
+            var deptSel = document.getElementById("selDept");
+            var courseSel = document.getElementById("selCourse");
+            if (deptSel && courseSel && deptCourseMap[deptSel.value]) {
+                courseSel.value = deptCourseMap[deptSel.value];
+            }
+            document.getElementById("filterForm").submit();
+        }
+
+        function markAll(status) {
+            var count = @Model.StudentsToMark.Count;
+            for (var i = 0; i < count; i++) {
+                var radio = document.getElementById(status === 'Present' ? ('status_p_' + i) : ('status_a_' + i));
+                if (radio) radio.checked = true;
+            }
+        }
+
+        function openDeleteAttendanceModal(id, name, studentId, date, status) {
+            document.getElementById("delAttendanceId").value = id;
+            document.getElementById("delStudentName").textContent = name;
+            document.getElementById("delStudentId").textContent = studentId;
+            document.getElementById("delDate").textContent = date;
+            document.getElementById("delStatus").textContent = status;
+            document.getElementById("deleteModal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            document.getElementById("deleteModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById("deleteModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
+}
